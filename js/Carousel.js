@@ -4,13 +4,16 @@
 // setting global variables here for control
 // For the container the carousel will be in
 var container;  
-var rotationRate = -0.01;
+var rotationRate = -0.02;
 var speed = 0; 
 var deltaRotationRate = rotationRate + speed;
 var wobbleConstant = 0.001;
+var radius = 15;
+var cameraDistance = 35;
 
 // globals for mouse tracking
 var mouseDown = false;
+var mouseOver = false;
 var timeStamp = null;
 var prevMouseX = null;
 var prevMouseY = null;
@@ -78,7 +81,7 @@ function init(planesArray) {
 
     // setting up the camera - this position just looks a little better to me
     camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 50);
-    camera.position.set(0, -2, 30);
+    camera.position.set(0, -2, cameraDistance);
 
     // Set up to track a mouse coordinates
     mouse = new THREE.Vector2();
@@ -128,7 +131,10 @@ window.addEventListener('mouseup', onMouseUp, false);
 window.addEventListener('mousemove', onMouseMove, false);
 
 window.addEventListener('mouseover', onMouseOver, false);
-window.addEventListener('mouseoff', onMouseOff, false);
+window.addEventListener('mouseout', onMouseOff, false);
+
+
+
 
 
 
@@ -156,8 +162,23 @@ function animate() {
     if (speed < 0.0001 || speed > 0.0001) {
         speed = speed * 0.99;
     }
+    if(mouseOver){
+        moveCameraIn(25);
+    } else {
+        moveCameraOut();
+    }
 
-    rotateParent(getRotationRate());
+    // if (!mouseDown){
+    //     rotateParent(getRotationRate());
+
+    // }
+
+    if (mouseOver) {
+        rotateParent(getRotationRate()/2);
+    } else {
+        rotateParent(getRotationRate());
+
+    }
     // parent.rotation.y += getRotationRate();
     // for (var i = 0; i < parent.children.length; i++ ) {
     //     parent.children[i].children[0].rotation.y += -getRotationRate();
@@ -183,6 +204,7 @@ function onMouseUp(event) {
 
 function onMouseMove(event) {
     if (mouseDown){
+        // console.log(event.clientX);
         if (timeStamp === null) {
             timeStamp = Date.now();
             prevMouseX = event.clientX;
@@ -197,6 +219,30 @@ function onMouseMove(event) {
         var speedX = Math.round(deltaX / deltaT * 100);
         var speedY = Math.round(deltaY / deltaT * 100);
 
+        
+
+
+    
+
+        var left = Math.floor(container.clientWidth/6)+container.offsetLeft;
+        var middle = (Math.floor(container.clientWidth/6)*4)+ container.offsetLeft+ left;
+        if (event.clientX > left & event.clientX < middle){
+            if (deltaX > 0){
+                var percent = (event.clientX - left)/(Math.floor(container.clientWidth/6)*4);
+            rotateParent(percent * (Math.PI/180));
+            } else {
+                var percent = (container.clientWidth - event.clientX-left)/(Math.floor(container.clientWidth/6)*4);
+                rotateParent(-percent * (Math.PI/180));
+            }
+            
+
+        }
+
+
+        
+
+ 
+
         averageX[0] += speedX;
         averageX[1]++;
         timeStamp = now;
@@ -208,8 +254,10 @@ function onMouseMove(event) {
             rotationRate =  rotationRate * -1;
         }
 
-        // parent.rotation.y += speedX;
-        rotateParent(deltaX);
+
+
+
+
     }
 }
 function rotateParent(rotationAmount){
@@ -218,13 +266,47 @@ function rotateParent(rotationAmount){
         parent.children[i].children[0].rotation.y += -rotationAmount;
     }
 }
+function toRadians(angle) {
+    return angle * (Math.PI/180);
+}
 
 function onMouseOver(event) {
-    
+    var coords = {
+        x: event.clientX,
+        y: event.clientY
+    }
+
+    if (inContainer(coords)){
+        mouseOver = true;
+    } else {
+        mouseOver = false;
+    } 
+}
+
+function inContainer(coords){
+    if (coords.x > container.offsetLeft & coords.x < container.offsetLeft + container.clientWidth){
+        if (coords.y > container.offsetTop & coords.y < container.offsetTop + container.clientHeight){
+            return true;
+        }
+    }
+    return false;
 }
 
 function onMouseOff(event){
+    console.log('mouseOut');
+    mouseOver = false;
+}
 
+function moveCameraIn(distance){
+    if (camera.position.z > distance){
+        camera.position.z -= 0.5;
+    }
+}
+
+function moveCameraOut() {
+    if (camera.position.z < cameraDistance){
+        camera.position.z += 0.5;
+    }
 }
 
 function getRotationRate() {
