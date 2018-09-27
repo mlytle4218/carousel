@@ -4,12 +4,15 @@
 // setting global variables here for control
 // For the container the carousel will be in
 var container;  
-var rotationRate = -0.02;
+var rotationRate = -0.01;
 var speed = 0; 
 var deltaRotationRate = rotationRate + speed;
 var wobbleConstant = 0.001;
 var radius = 15;
 var cameraDistance = 35;
+
+
+var inter;
 
 // globals for mouse tracking
 var mouseDown = false;
@@ -19,6 +22,10 @@ var prevMouseX = null;
 var prevMouseY = null;
 var averageX = [0,0];
 var averageY = [0,0];
+
+
+var raycaster = new THREE.Raycaster();
+var mouse = new THREE.Vector2();
 
 
 var wobbleProgress;
@@ -179,6 +186,8 @@ function animate() {
         rotateParent(getRotationRate());
 
     }
+
+    
     // parent.rotation.y += getRotationRate();
     // for (var i = 0; i < parent.children.length; i++ ) {
     //     parent.children[i].children[0].rotation.y += -getRotationRate();
@@ -194,6 +203,16 @@ function onMouseDown(event) {
     averageY = [0,0];
 
     event.preventDefault();
+
+    // update the picking ray with the camera and mouse position
+	raycaster.setFromCamera( mouse, camera );
+
+	// calculate objects intersecting the picking ray
+    var intersects = raycaster.intersectObjects( scene.children, true );
+    inter = intersects[0];
+    console.log(intersects[0]);
+
+
 
 
 }
@@ -238,6 +257,9 @@ function onMouseMove(event) {
 
         }
 
+
+        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+	    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
         
 
