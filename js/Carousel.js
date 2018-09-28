@@ -3,13 +3,14 @@
 */
 // setting global variables here for control
 // For the container the carousel will be in
-var container;  
-var rotationRate = -0.01;
-var speed = 0; 
+var container;
+var rotationRate = -0.005;
+var speed = 0;
 var deltaRotationRate = rotationRate + speed;
 var wobbleConstant = 0.001;
-var radius = 15;
-var cameraDistance = 35;
+var radius = 10;
+var cameraDistance = 45;
+var quickZoom = 35;
 
 
 var inter;
@@ -20,8 +21,8 @@ var mouseOver = false;
 var timeStamp = null;
 var prevMouseX = null;
 var prevMouseY = null;
-var averageX = [0,0];
-var averageY = [0,0];
+var averageX = [0, 0];
+var averageY = [0, 0];
 
 
 var raycaster = new THREE.Raycaster();
@@ -50,14 +51,14 @@ function start(fileArray) {
 
 // takes an array with image file locations
 // returns an array of plane geometries with the images grafted onto them.
-function createImagePlanes(files) {
+function createImagePlanes(input) {
     var resultArray = [];
-    files.forEach(element => {
+    input.files.forEach(element => {
         var loader = new THREE.TextureLoader();
 
         // Load image file into a custom material
         var material = new THREE.MeshLambertMaterial({
-            map: loader.load(element)
+            map: loader.load(element.pic)
         });
 
         // Allow the transparencies to work
@@ -65,16 +66,69 @@ function createImagePlanes(files) {
 
         // create a plane geometry for the image with a width of 10
         // and a height that preserves the image's aspect ratio
-        var geometry = new THREE.PlaneGeometry(10, 10);
+        var geometry = new THREE.PlaneGeometry(15, 15);
 
         // combine our image geometry and material into a mesh
-        print = new THREE.Mesh(geometry, material);
+        var print = new THREE.Mesh(geometry, material);
 
         // set the position of the image mesh in the x,y,z dimensions
-        print.position.set(0, -2, 0)
+        print.position.set(0, -3, 0)
+
+        // var loader = new THREE.FontLoader();
+
+        // loader.load('fonts/light.json', function (font) {
+
+        //     var geometry = new THREE.TextGeometry(element.name, {
+        //         font: font,
+        //         size: 1,
+        //         height: 5,
+        //         curveSegments: 12,
+        //         bevelEnabled: true,
+        //         bevelThickness: 10,
+        //         bevelSize: 8,
+        //         bevelSegments: 5
+        //     });
+        //     console.log(geometry);
+        //     var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+        //     var text = new THREE.Mesh( geometry, material );
+        //     reScale(text, 0.1);
+        //     text.rotation.x = Math.PI/90;
+        //     print.add(text);
+        // });
         resultArray.push(print);
     });
     return resultArray;
+}
+
+// function to load the obj model - this is a two part load - it takes
+// relative path and for now just the basename of the files (ie you have
+// a 'model.obj', and the accompanying 'model.mtl', pass the the path and 
+// 'model' to the function. 
+function loadObjModel(path) {
+
+    var progress; // = console.log;
+
+    return new Promise(function (resolve, reject) {
+        var mtlLoader = new THREE.MTLLoader();
+        mtlLoader.setPath(path);
+        mtlLoader.load(name + ".mtl", function (materials) {
+
+            materials.preload();
+
+            var objLoader = new THREE.OBJLoader();
+
+            objLoader.setMaterials(materials);
+            objLoader.setPath(path);
+            objLoader.load(name + ".obj", resolve, progress, reject);
+
+        }, progress, reject);
+    });
+}
+
+function reScale( object, amount){
+    object.scale.x = amount;
+    object.scale.y = amount;
+    object.scale.z = amount;
 }
 
 function init(planesArray) {
@@ -87,7 +141,7 @@ function init(planesArray) {
     wobbleProgress = 0;
 
     // setting up the camera - this position just looks a little better to me
-    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 50);
+    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 100);
     camera.position.set(0, -2, cameraDistance);
 
     // Set up to track a mouse coordinates
@@ -95,8 +149,8 @@ function init(planesArray) {
 
     // setting the scene
     scene = new THREE.Scene();
-    var color = new THREE.Color(0xddddff);
-    scene.background = color;
+    // var color = new THREE.Color(0xddddff);
+    // scene.background = color;
 
     light = new THREE.AmbientLight(ambientLightColor);
     light.position.set(0, 10, 0);
@@ -108,20 +162,21 @@ function init(planesArray) {
     scene.add(parent);
 
     var progress = 0;
-    for (var i= 0; i< planesArray.length; i++) {
+    for (var i = 0; i < planesArray.length; i++) {
         var pivot = new THREE.Object3D();
         pivot.rotation.y = progress * Math.PI / planesArray.length;
         parent.add(pivot);
         planesArray[i].position.z = 15;
         planesArray[i].rotation.y = -progress * Math.PI / planesArray.length;
         pivot.add(planesArray[i]);
-        progress+=2;
+        progress += 2;
     }
 
 
     //set renderer
     this.renderer = new THREE.WebGLRenderer({
-        antialias: true
+        antialias: true,
+        alpha: true
     });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(container.clientWidth, container.clientHeight);
@@ -169,8 +224,8 @@ function animate() {
     if (speed < 0.0001 || speed > 0.0001) {
         speed = speed * 0.99;
     }
-    if(mouseOver){
-        moveCameraIn(25);
+    if (mouseOver) {
+        moveCameraIn(quickZoom);
     } else {
         moveCameraOut();
     }
@@ -181,13 +236,13 @@ function animate() {
     // }
 
     if (mouseOver) {
-        rotateParent(getRotationRate()/2);
+        rotateParent(getRotationRate() / 2);
     } else {
         rotateParent(getRotationRate());
 
     }
 
-    
+
     // parent.rotation.y += getRotationRate();
     // for (var i = 0; i < parent.children.length; i++ ) {
     //     parent.children[i].children[0].rotation.y += -getRotationRate();
@@ -199,16 +254,16 @@ function animate() {
 // function to register mouse location on click
 function onMouseDown(event) {
     mouseDown = true;
-    averageX = [0,0];
-    averageY = [0,0];
+    averageX = [0, 0];
+    averageY = [0, 0];
 
     event.preventDefault();
 
     // update the picking ray with the camera and mouse position
-	raycaster.setFromCamera( mouse, camera );
+    raycaster.setFromCamera(mouse, camera);
 
-	// calculate objects intersecting the picking ray
-    var intersects = raycaster.intersectObjects( scene.children, true );
+    // calculate objects intersecting the picking ray
+    var intersects = raycaster.intersectObjects(scene.children, true);
     inter = intersects[0];
     console.log(intersects[0]);
 
@@ -222,7 +277,7 @@ function onMouseUp(event) {
 }
 
 function onMouseMove(event) {
-    if (mouseDown){
+    if (mouseDown) {
         // console.log(event.clientX);
         if (timeStamp === null) {
             timeStamp = Date.now();
@@ -230,50 +285,50 @@ function onMouseMove(event) {
             prevMouseY = event.clientY;
             return;
         }
-    
+
         var now = Date.now();
-        var deltaT =  now - timeStamp;
+        var deltaT = now - timeStamp;
         var deltaX = event.clientX - prevMouseX;
         var deltaY = event.clientY - prevMouseY;
         var speedX = Math.round(deltaX / deltaT * 100);
         var speedY = Math.round(deltaY / deltaT * 100);
 
-        
 
 
-    
 
-        var left = Math.floor(container.clientWidth/6)+container.offsetLeft;
-        var middle = (Math.floor(container.clientWidth/6)*4)+ container.offsetLeft+ left;
-        if (event.clientX > left & event.clientX < middle){
-            if (deltaX > 0){
-                var percent = (event.clientX - left)/(Math.floor(container.clientWidth/6)*4);
-            rotateParent(percent * (Math.PI/180));
+
+
+        var left = Math.floor(container.clientWidth / 6) + container.offsetLeft;
+        var middle = (Math.floor(container.clientWidth / 6) * 4) + container.offsetLeft + left;
+        if (event.clientX > left & event.clientX < middle) {
+            if (deltaX > 0) {
+                var percent = (event.clientX - left) / (Math.floor(container.clientWidth / 6) * 4);
+                rotateParent(percent * (Math.PI / 180));
             } else {
-                var percent = (container.clientWidth - event.clientX-left)/(Math.floor(container.clientWidth/6)*4);
-                rotateParent(-percent * (Math.PI/180));
+                var percent = (container.clientWidth - event.clientX - left) / (Math.floor(container.clientWidth / 6) * 4);
+                rotateParent(-percent * (Math.PI / 180));
             }
-            
+
 
         }
 
 
-        mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-	    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-        
 
- 
+
+
 
         averageX[0] += speedX;
         averageX[1]++;
         timeStamp = now;
         prevMouseX = event.clientX;
         prevMouseY = event.clientY;
-        speed = ((averageX[0]/averageX[1])/1000) * 0.1;
+        speed = ((averageX[0] / averageX[1]) / 1000) * 0.1;
 
-        if ((speed * rotationRate) < 0){
-            rotationRate =  rotationRate * -1;
+        if ((speed * rotationRate) < 0) {
+            rotationRate = rotationRate * -1;
         }
 
 
@@ -282,14 +337,16 @@ function onMouseMove(event) {
 
     }
 }
-function rotateParent(rotationAmount){
+
+function rotateParent(rotationAmount) {
     parent.rotation.y += rotationAmount;
-    for (var i = 0; i < parent.children.length; i++ ) {
+    for (var i = 0; i < parent.children.length; i++) {
         parent.children[i].children[0].rotation.y += -rotationAmount;
     }
 }
+
 function toRadians(angle) {
-    return angle * (Math.PI/180);
+    return angle * (Math.PI / 180);
 }
 
 function onMouseOver(event) {
@@ -298,35 +355,35 @@ function onMouseOver(event) {
         y: event.clientY
     }
 
-    if (inContainer(coords)){
+    if (inContainer(coords)) {
         mouseOver = true;
     } else {
         mouseOver = false;
-    } 
+    }
 }
 
-function inContainer(coords){
-    if (coords.x > container.offsetLeft & coords.x < container.offsetLeft + container.clientWidth){
-        if (coords.y > container.offsetTop & coords.y < container.offsetTop + container.clientHeight){
+function inContainer(coords) {
+    if (coords.x > container.offsetLeft & coords.x < container.offsetLeft + container.clientWidth) {
+        if (coords.y > container.offsetTop & coords.y < container.offsetTop + container.clientHeight) {
             return true;
         }
     }
     return false;
 }
 
-function onMouseOff(event){
+function onMouseOff(event) {
     console.log('mouseOut');
     mouseOver = false;
 }
 
-function moveCameraIn(distance){
-    if (camera.position.z > distance){
+function moveCameraIn(distance) {
+    if (camera.position.z > distance) {
         camera.position.z -= 0.5;
     }
 }
 
 function moveCameraOut() {
-    if (camera.position.z < cameraDistance){
+    if (camera.position.z < cameraDistance) {
         camera.position.z += 0.5;
     }
 }
@@ -342,16 +399,16 @@ function getRotationRate() {
     }
 }
 
-function wobble(object, progress){
+function wobble(object, progress) {
     var wobbleTiming = 80
-    if (progress >= wobbleTiming){
+    if (progress >= wobbleTiming) {
         progress = -1;
-    } else if (progress < wobbleTiming/4 ) {
-        object.rotation.x +=wobbleConstant;
-        object.rotation.z +=wobbleConstant;
-    } else if (progress < wobbleTiming/4*2) {
-        object.rotation.x -=wobbleConstant;
-        object.rotation.z -=wobbleConstant;
+    } else if (progress < wobbleTiming / 4) {
+        object.rotation.x += wobbleConstant;
+        object.rotation.z += wobbleConstant;
+    } else if (progress < wobbleTiming / 4 * 2) {
+        object.rotation.x -= wobbleConstant;
+        object.rotation.z -= wobbleConstant;
     } else if (progress < wobbleTiming) {
         // object.rotation.x +=wobbleConstant;
         // object.rotation.z +=wobbleConstant;

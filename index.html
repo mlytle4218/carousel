@@ -8,9 +8,10 @@
     <style>
         #canvas {
             width: 100vw;
-            height: 40vw;
+            height: 50vw;
             margin: 0px;
             border: 1px solid;
+            background-image: url("pics/bg.jpg");
         }
 
         .button {
@@ -62,9 +63,18 @@
             "pics/kt4_veterans_day_heel.png",
             "pics/OnFire.png"
         ]
+        var make = {
+            "files": [
+                { "name": "Make It Rain", "pic": "pics/makeItRain.png"},
+                { "name": "Veteran's Day", "pic": "pics/veteransDay.png" },
+                { "name": "On Fire", "pic": "pics/onFire.png" },
+                { "name": "Still Waters Run Deep", "pic": "pics/stillWaters.png" }
+            ]
+        }
         if (Detector.webgl) {
             // Initiate function or other initializations here
-            start(files);
+            // start(files);
+            start(make);
         } else {
             var warning = Detector.getWebGLErrorMessage();
             document.getElementById('canvas').appendChild(warning);
