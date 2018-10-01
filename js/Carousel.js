@@ -12,6 +12,8 @@ var radius = 10;
 var cameraDistance = 35;
 var quickZoom = 35;
 
+var containerFound = false;
+
 
 var inter;
 
@@ -44,8 +46,10 @@ var ambientLightColor = 0xffffff;
 function start(fileArray) {
     // getting the container
     container = document.getElementById(connectingElement);
-    // console.log(container!=null);
-    if (container != null){
+    if (container != null) {
+        containerFound = true;
+    }
+    if (containerFound){
         imagesArray = createImagePlanes(fileArray);
         initCar(imagesArray);
         animateCar()
@@ -62,29 +66,6 @@ function createImagePlanes(input) {
     input.files.forEach(function (element) {
         imageArray.push(element.pic);
     });
-    // myLoader(imageArray);
-
-    // var materialsArray;
-    // var each = Math.floor(100/imageUrls.length);
-    // var done=0;
-    // console.log(each);
-    // imageUrls.forEach( function(element){
-    //     var loader = new THREE.TextureLoader();
-    //     var material = new THREE.MeshLambertMaterial({
-    //         map: loader.load(
-    //             element,
-    //             (bob) => {
-    //                 done += each;
-    //                 console.log(done +"% loaded");
-    //                 materialsArray.push(element);
-    //             },
-    //             (larry) => {
-    //                 console.log("progress");
-    //             }
-    //             )
-    //     })
-
-    // })
 
     input.files.forEach(function (element) {
         var loader = new THREE.TextureLoader();
@@ -267,11 +248,7 @@ function animateCar() {
 
 // function to register mouse location on click
 function onMouseDown(event) {
-    var coords = {
-        x: event.clientX,
-        y: event.clientY
-    }
-    if (inContainer(coords)) {
+    if (containerFound & inContainer(event)) {
         mouseDown = true;
         averageX = [0, 0];
         averageY = [0, 0];
@@ -293,15 +270,13 @@ function onMouseDown(event) {
 }
 
 function onMouseUp(event) {
-    mouseDown = false;
+    if (containerFound){
+        mouseDown = false;
+    }
 }
 
 function onMouseMove(event) {
-    var coords = {
-        x: event.clientX,
-        y: event.clientY
-    }
-    if (mouseDown & inContainer(coords)) {
+    if ( containerFound & mouseDown & inContainer(event)) {
         if (timeStamp === null) {
             timeStamp = Date.now();
             prevMouseX = event.clientX;
@@ -356,21 +331,17 @@ function toRadians(angle) {
 }
 
 function onMouseOver(event) {
-    var coords = {
-        x: event.clientX,
-        y: event.clientY
-    }
 
-    if (inContainer(coords)) {
+    if (containerFound & inContainer(event)) {
         mouseOver = true;
     } else {
         mouseOver = false;
     }
 }
 
-function inContainer(coords) {
-    if (coords.x > container.offsetLeft & coords.x < container.offsetLeft + container.clientWidth) {
-        if (coords.y > container.offsetTop & coords.y < container.offsetTop + container.clientHeight) {
+function inContainer(event) {
+    if (event.clientX > container.offsetLeft & event.clientX < container.offsetLeft + container.clientWidth) {
+        if (event.clientY > container.offsetTop & event.clientY < container.offsetTop + container.clientHeight) {
             return true;
         }
     }
@@ -378,8 +349,9 @@ function inContainer(coords) {
 }
 
 function onMouseOff(event) {
-    // console.log('mouseOut');
-    mouseOver = false;
+    if (containerFound){
+        mouseOver = false;
+    } 
 }
 
 
