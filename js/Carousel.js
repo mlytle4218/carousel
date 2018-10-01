@@ -12,7 +12,6 @@ var radius = 10;
 var cameraDistance = 35;
 var quickZoom = 35;
 
-var containerFound = false;
 
 
 var inter;
@@ -45,16 +44,17 @@ var ambientLightColor = 0xffffff;
 // The main entryway to the script
 function start(fileArray) {
     // getting the container
-    container = document.getElementById(connectingElement);
-    if (container != null) {
-        containerFound = true;
-    }
-    if (containerFound){
-        imagesArray = createImagePlanes(fileArray);
-        initCar(imagesArray);
-        animateCar()
-
-    };
+    container = document.getElementById(connectingElement);imagesArray = createImagePlanes(fileArray);
+    initCar(imagesArray);
+    animateCar();
+    window.addEventListener('mousedown', onMouseDown, false);
+    
+    window.addEventListener('mouseup', onMouseUp, false);
+    
+    window.addEventListener('mousemove', onMouseMove, false);
+    
+    window.addEventListener('mouseover', onMouseOver, false);
+    window.addEventListener('mouseout', onMouseOff, false);
 }
 
 // takes an array with image file locations
@@ -170,14 +170,6 @@ function initCar(planesArray) {
 
 window.addEventListener('resize', onWindowResize, false);
 
-window.addEventListener('mousedown', onMouseDown, false);
-
-window.addEventListener('mouseup', onMouseUp, false);
-
-window.addEventListener('mousemove', onMouseMove, false);
-
-window.addEventListener('mouseover', onMouseOver, false);
-window.addEventListener('mouseout', onMouseOff, false);
 
 function myLoader(imageUrls) {
     var progress;// = console.log;
@@ -248,7 +240,7 @@ function animateCar() {
 
 // function to register mouse location on click
 function onMouseDown(event) {
-    if (containerFound & inContainer(event)) {
+    if (inContainer(event)) {
         mouseDown = true;
         averageX = [0, 0];
         averageY = [0, 0];
@@ -270,13 +262,11 @@ function onMouseDown(event) {
 }
 
 function onMouseUp(event) {
-    if (containerFound){
-        mouseDown = false;
-    }
+    mouseDown = false;
 }
 
 function onMouseMove(event) {
-    if ( containerFound & mouseDown & inContainer(event)) {
+    if (mouseDown & inContainer(event)) {
         if (timeStamp === null) {
             timeStamp = Date.now();
             prevMouseX = event.clientX;
@@ -332,7 +322,7 @@ function toRadians(angle) {
 
 function onMouseOver(event) {
 
-    if (containerFound & inContainer(event)) {
+    if (inContainer(event)) {
         mouseOver = true;
     } else {
         mouseOver = false;
@@ -349,9 +339,7 @@ function inContainer(event) {
 }
 
 function onMouseOff(event) {
-    if (containerFound){
-        mouseOver = false;
-    } 
+    mouseOver = false;
 }
 
 
