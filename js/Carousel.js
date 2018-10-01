@@ -182,12 +182,12 @@ function myLoader(imageUrls) {
         var material = new THREE.MeshLambertMaterial({
             map: loader.load(
                 element,
-                (bob) => {
-                    done += each;
+                function (bob) {
+                    done+= each;
                     console.log(done + "% loaded");
                     materialsArray.push(element);
                 },
-                (larry) => {
+                function () {
                     console.log("progress");
                 }
             )
