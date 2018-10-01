@@ -42,51 +42,17 @@ var ambientLightColor = 0xffffff;
 
 // The main entryway to the script
 function start(fileArray) {
-    // getting the container
-    container = document.getElementById(connectingElement);
-    // console.log(container!=null);
-    if (container != null){
-        imagesArray = createImagePlanes(fileArray);
-        initCar(imagesArray);
-        animateCar()
-
-    };
+    imagesArray = createImagePlanes(fileArray);
+    initCar(imagesArray);
+    animateCar();
 }
 
 // takes an array with image file locations
 // returns an array of plane geometries with the images grafted onto them.
 function createImagePlanes(input) {
     var resultArray = [];
-    var imageArray = [];
 
-    input.files.forEach(function (element) {
-        imageArray.push(element.pic);
-    });
-    // myLoader(imageArray);
-
-    // var materialsArray;
-    // var each = Math.floor(100/imageUrls.length);
-    // var done=0;
-    // console.log(each);
-    // imageUrls.forEach( function(element){
-    //     var loader = new THREE.TextureLoader();
-    //     var material = new THREE.MeshLambertMaterial({
-    //         map: loader.load(
-    //             element,
-    //             (bob) => {
-    //                 done += each;
-    //                 console.log(done +"% loaded");
-    //                 materialsArray.push(element);
-    //             },
-    //             (larry) => {
-    //                 console.log("progress");
-    //             }
-    //             )
-    //     })
-
-    // })
-
-    input.files.forEach(function (element) {
+    input.files.forEach(function(element) {
         var loader = new THREE.TextureLoader();
 
         // Load image file into a custom material
@@ -141,7 +107,10 @@ function loadObjModel(path) {
 
 function initCar(planesArray) {
 
-
+    // getting the container
+    container = document.getElementById(connectingElement);
+    // document.body.appendChild(container);
+    // container.appendChild(renderer.domElement);
 
     // setting up the camera - this position just looks a little better to me
     camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 100);
@@ -198,39 +167,6 @@ window.addEventListener('mousemove', onMouseMove, false);
 window.addEventListener('mouseover', onMouseOver, false);
 window.addEventListener('mouseout', onMouseOff, false);
 
-function myLoader(imageUrls) {
-    var progress;// = console.log;
-    var materialsArray;
-    var each = Math.floor(100 / imageUrls.length);
-    var done = 0;
-    // console.log(each);
-    imageUrls.forEach(function (element) {
-        var loader = new THREE.TextureLoader();
-        var material = new THREE.MeshLambertMaterial({
-            map: loader.load(
-                element,
-                (bob) => {
-                    done += each;
-                    console.log(done + "% loaded");
-                    materialsArray.push(element);
-                },
-                (larry) => {
-                    console.log("progress");
-                }
-            )
-        })
-
-    })
-    return materialsArray;
-    // var loader = new THREE.TextureLoader();
-
-    //     // Load image file into a custom material
-    //     var material = new THREE.MeshLambertMaterial({
-    //         map: loader.load(element.pic)
-    //     });
-
-}
-
 
 
 
@@ -267,28 +203,20 @@ function animateCar() {
 
 // function to register mouse location on click
 function onMouseDown(event) {
-    var coords = {
-        x: event.clientX,
-        y: event.clientY
-    }
-    if (inContainer(coords)) {
-        mouseDown = true;
-        averageX = [0, 0];
-        averageY = [0, 0];
+    mouseDown = true;
+    averageX = [0, 0];
+    averageY = [0, 0];
 
-        event.preventDefault();
+    event.preventDefault();
 
-        // update the picking ray with the camera and mouse position
-        raycaster.setFromCamera(mouse, camera);
+    // update the picking ray with the camera and mouse position
+    raycaster.setFromCamera(mouse, camera);
 
-        // calculate objects intersecting the picking ray
-        var intersects = raycaster.intersectObjects(scene.children, true);
-        if (intersects.length > 0) {
-            inter = intersects[0];
-            // console.log(intersects[0].distance);
-            // console.log(intersects[0].body.distanceTo(camera));
-            // window.location.assign(intersects[0].object.url);
-        }
+    // calculate objects intersecting the picking ray
+    var intersects = raycaster.intersectObjects(scene.children, true);
+    if (intersects.length > 0) {
+        inter = intersects[0];
+        console.log(intersects[0]);
     }
 }
 
@@ -297,11 +225,7 @@ function onMouseUp(event) {
 }
 
 function onMouseMove(event) {
-    var coords = {
-        x: event.clientX,
-        y: event.clientY
-    }
-    if (mouseDown & inContainer(coords)) {
+    if (mouseDown) {
         if (timeStamp === null) {
             timeStamp = Date.now();
             prevMouseX = event.clientX;
@@ -316,6 +240,11 @@ function onMouseMove(event) {
         var speedX = Math.round(deltaX / deltaT * 100);
         var speedY = Math.round(deltaY / deltaT * 100);
 
+
+
+
+
+
         var left = Math.floor(container.clientWidth / 6) + container.offsetLeft;
         var middle = (Math.floor(container.clientWidth / 6) * 4) + container.offsetLeft + left;
         if (event.clientX > left & event.clientX < middle) {
@@ -326,9 +255,17 @@ function onMouseMove(event) {
                 var percent = (container.clientWidth - event.clientX - left) / (Math.floor(container.clientWidth / 6) * 4);
                 rotateParent(-percent * (Math.PI / 180));
             }
+
+
         }
+
+
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+
+
+
 
         averageX[0] += speedX;
         averageX[1]++;
@@ -378,7 +315,7 @@ function inContainer(coords) {
 }
 
 function onMouseOff(event) {
-    // console.log('mouseOut');
+    console.log('mouseOut');
     mouseOver = false;
 }
 

@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
-        #canvas {
+        #carousel {
             width: 100vw;
             height: 50vw;
             margin: 0px;
@@ -38,19 +38,21 @@
 </head>
 
 <body>
-    <div id="canvas">
+    <div id="carousel">
 
     </div>
+    <div>Test if replacing correctly</div>
 
-    <script src="js/three.js"></script>
+    <!-- <script src="js/three.js"></script>
 
-    <script src="js/OrbitControls.js"></script>
     <script src="js/MTLLoader.js"></script>
-    <script src="js/GLTFLoader.js"></script>
     <script src="js/OBJLoader.js"></script>
 
-    <script src="js/Detector.js"></script>
+    <script src="js/Detector.js"></script> -->
 
+
+    <script src="js/carThree.min.js"></script>
+    <!-- <script src="js/carInit.min.js"></script> -->
     <script src="js/Carousel.js"></script>
 
 
@@ -65,10 +67,10 @@
         ]
         var make = {
             "files": [
-                { "name": "Make It Rain", "pic": "pics/makeItRain.png"},
-                { "name": "Veteran's Day", "pic": "pics/veteransDay.png" },
-                { "name": "On Fire", "pic": "pics/onFire.png" },
-                { "name": "Still Waters Run Deep", "pic": "pics/stillWaters.png" }
+                { "name": "Make It Rain", "pic": "pics/makeItRain.png", "url":"http://amazon.com"},
+                { "name": "Veteran's Day", "pic": "pics/veteransDay.png", "url":"http://google.com" },
+                { "name": "On Fire", "pic": "pics/onFire.png", "url":"http://facebook.com" },
+                { "name": "Still Waters Run Deep", "pic": "pics/stillWaters.png", "url":"http://instagram.com" }
             ]
         }
         if (Detector.webgl) {
