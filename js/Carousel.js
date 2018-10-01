@@ -6,11 +6,8 @@
 var container;
 var rotationRate = -0.005;
 var speed = 0;
-// var deltaRotationRate = rotationRate + speed;
-// var wobbleConstant = 0.001;
-var radius = 10;
+var radius = 15;
 var cameraDistance = 35;
-var quickZoom = 35;
 
 
 
@@ -44,15 +41,16 @@ var ambientLightColor = 0xffffff;
 // The main entryway to the script
 function start(fileArray) {
     // getting the container
-    container = document.getElementById(connectingElement);imagesArray = createImagePlanes(fileArray);
+    container = document.getElementById(connectingElement);
+    imagesArray = createImagePlanes(fileArray);
     initCar(imagesArray);
     animateCar();
     window.addEventListener('mousedown', onMouseDown, false);
-    
+
     window.addEventListener('mouseup', onMouseUp, false);
-    
+
     window.addEventListener('mousemove', onMouseMove, false);
-    
+
     window.addEventListener('mouseover', onMouseOver, false);
     window.addEventListener('mouseout', onMouseOff, false);
 }
@@ -80,7 +78,7 @@ function createImagePlanes(input) {
 
         // create a plane geometry for the image with a width of 10
         // and a height that preserves the image's aspect ratio
-        var geometry = new THREE.PlaneGeometry(15, 15);
+        var geometry = new THREE.PlaneGeometry(radius, radius);
 
         // combine our image geometry and material into a mesh
         var print = new THREE.Mesh(geometry, material);
@@ -133,8 +131,6 @@ function initCar(planesArray) {
 
     // setting the scene
     scene = new THREE.Scene();
-    // var color = new THREE.Color(0xddddff);
-    // scene.background = color;
 
     light = new THREE.AmbientLight(ambientLightColor);
     light.position.set(0, 10, 0);
@@ -169,43 +165,6 @@ function initCar(planesArray) {
 }
 
 window.addEventListener('resize', onWindowResize, false);
-
-
-function myLoader(imageUrls) {
-    var progress;// = console.log;
-    var materialsArray;
-    var each = Math.floor(100 / imageUrls.length);
-    var done = 0;
-    // console.log(each);
-    imageUrls.forEach(function (element) {
-        var loader = new THREE.TextureLoader();
-        var material = new THREE.MeshLambertMaterial({
-            map: loader.load(
-                element,
-                function (bob) {
-                    done+= each;
-                    console.log(done + "% loaded");
-                    materialsArray.push(element);
-                },
-                function () {
-                    console.log("progress");
-                }
-            )
-        })
-
-    })
-    return materialsArray;
-    // var loader = new THREE.TextureLoader();
-
-    //     // Load image file into a custom material
-    //     var material = new THREE.MeshLambertMaterial({
-    //         map: loader.load(element.pic)
-    //     });
-
-}
-
-
-
 
 
 
@@ -254,9 +213,6 @@ function onMouseDown(event) {
         var intersects = raycaster.intersectObjects(scene.children, true);
         if (intersects.length > 0) {
             inter = intersects[0];
-            // console.log(intersects[0].distance);
-            // console.log(intersects[0].body.distanceTo(camera));
-            // window.location.assign(intersects[0].object.url);
         }
     }
 }
@@ -277,23 +233,7 @@ function onMouseMove(event) {
         var now = Date.now();
         var deltaT = now - timeStamp;
         var deltaX = event.clientX - prevMouseX;
-        var deltaY = event.clientY - prevMouseY;
         var speedX = Math.round(deltaX / deltaT * 100);
-        var speedY = Math.round(deltaY / deltaT * 100);
-
-        var left = Math.floor(container.clientWidth / 6) + container.offsetLeft;
-        var middle = (Math.floor(container.clientWidth / 6) * 4) + container.offsetLeft + left;
-        if (event.clientX > left & event.clientX < middle) {
-            if (deltaX > 0) {
-                var percent = (event.clientX - left) / (Math.floor(container.clientWidth / 6) * 4);
-                rotateParent(percent * (Math.PI / 180));
-            } else {
-                var percent = (container.clientWidth - event.clientX - left) / (Math.floor(container.clientWidth / 6) * 4);
-                rotateParent(-percent * (Math.PI / 180));
-            }
-        }
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
         averageX[0] += speedX;
         averageX[1]++;
@@ -353,5 +293,3 @@ function getRotationRate() {
         return rotationRate + speed;
     }
 }
-
-
