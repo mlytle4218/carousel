@@ -4,14 +4,18 @@
 // setting global variables here for control
 // For the container the carousel will be in
 var container;
-var rotationRate = -0.005;
+var rotationRate = 0.005;
 var speed = 0;
-var radius = 15;
-var cameraDistance = 35;
-
+// var radius = 15;
+// var cameraDistance = 35;
+var radius = 430;
+var cameraDistance = 1000;
+var zoomedCameraDistance = 800;
+var cameraZoomRate = 10;
 
 
 var inter;
+var working = 0;
 
 // globals for mouse tracking
 var mouseDown = false;
@@ -87,6 +91,56 @@ function createImagePlanes(input) {
         print.position.set(0, -3, 0);
         print.url = element.url;
 
+        // var loader2 = new THREE.TextureLoader();
+
+        // // Load image file into a custom material
+        // var material2 = new THREE.MeshLambertMaterial({
+        //     map: loader2.load('pics/make-it-rain-type.png')
+        // });
+
+        // // Allow the transparencies to work
+        // material2.transparent = true;
+
+        // // create a plane geometry for the image with a width of 10
+        // // and a height that preserves the image's aspect ratio
+        // var geometry2 = new THREE.PlaneGeometry(radius/2.5, radius/17.5);
+
+        // // combine our image geometry and material into a mesh
+        // var print2 = new THREE.Mesh(geometry2, material2);
+
+        // // set the position of the image mesh in the x,y,z dimensions
+        // print2.position.set(175, -3, 1);
+        // print.add(print2);
+
+
+        var loader = new THREE.FontLoader();
+
+        loader.load('fonts/OpenSans-Bold.json', function (font) {
+            // loader.load('fonts/SharpGroteskSmBoldItalic15.ttf', function (font) {
+
+
+            var textGeometry = new THREE.TextGeometry(element.name, {
+                size: 25,
+                font: font,
+                height: 5,
+                curveSegments: 12,
+                bevelEnabled: false,
+                bevelThickness: 10,
+                bevelSize: 8,
+                bevelSegments: 5
+            });
+            var textMaterial = new THREE.MeshPhongMaterial(
+                { color: 0xff0000, opacity: 0, specular: 0xffffff }
+            );
+            textMaterial.transparent = true;
+            //   textMaterial.opacity.set(1.5);
+
+            var mesh = new THREE.Mesh(textGeometry, textMaterial);
+            mesh.position.set(100, -50, 0);
+
+            print.add(mesh);
+        });
+
         resultArray.push(print);
     });
     return resultArray;
@@ -123,7 +177,7 @@ function initCar(planesArray) {
 
 
     // setting up the camera - this position just looks a little better to me
-    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 100);
+    camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 2000);
     camera.position.set(0, -2, cameraDistance);
 
     // Set up to track a mouse coordinates
@@ -146,11 +200,13 @@ function initCar(planesArray) {
         var pivot = new THREE.Object3D();
         pivot.rotation.y = progress * Math.PI / planesArray.length;
         parent.add(pivot);
-        planesArray[i].position.z = 15;
+        planesArray[i].position.z = 400;
         planesArray[i].rotation.y = -progress * Math.PI / planesArray.length;
         pivot.add(planesArray[i]);
         progress += 2;
     }
+
+
 
 
     //set renderer
@@ -178,7 +234,46 @@ function onWindowResize() {
 // actually animating the scene including orbit changes
 
 function animateCar() {
+    var rotationInRadiansPerUnit = Math.round(scene.children[1].rotation.y / (Math.PI / 2));
+    if ((rotationInRadiansPerUnit % 4) == 0) {
+        working = 0;
+    }
 
+    working++;
+
+    // ugly ugly ugly inversion to allow for this to work backwards
+    var inversionArray=[0,3,2,1];
+
+    var direction = 0;
+    if (rotationInRadiansPerUnit <= 0) {
+        direction = -1;
+    } else {
+        direction = 1;
+    }
+    if (imagesArray) {
+        if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % 4)].children[0]) {
+            if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % 4)].children[0].material) {
+                if (direction < 0) {
+                    imagesArray.forEach(function(element) {
+                        element.children[0].material.opacity=0;
+                    });
+                    imagesArray[(Math.abs(rotationInRadiansPerUnit) % 4)].children[0].material.opacity = 1;
+                    if (((Math.abs(rotationInRadiansPerUnit) % 4) + direction) < 0) {
+                        imagesArray[3].children[0].material.opacity = 0;
+                    } else {
+                        imagesArray[(Math.abs(rotationInRadiansPerUnit) % 4) + direction].children[0].material.opacity = 0;
+                    }
+
+                } else {
+                    imagesArray.forEach(function(element) {
+                        element.children[0].material.opacity=0;
+                    });
+                    imagesArray[ inversionArray[(Math.abs(rotationInRadiansPerUnit) % 4)] ].children[0].material.opacity = 1;
+
+                }
+            }
+        }
+    }
 
     requestAnimationFrame(animateCar);
 
@@ -190,8 +285,14 @@ function animateCar() {
 
     if (mouseOver) {
         rotateParent(getRotationRate() / 2);
+        if (camera.position.z > zoomedCameraDistance) {
+            camera.position.z -= cameraZoomRate;
+        }
     } else {
         rotateParent(getRotationRate());
+        if (camera.position.z < cameraDistance) {
+            camera.position.z += cameraZoomRate;
+        }
 
     }
 
