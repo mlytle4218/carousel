@@ -4,7 +4,7 @@
 // setting global variables here for control
 // For the container the carousel will be in
 var container;
-var rotationRate = 0.005;
+var rotationRate = -0.005;
 var speed = 0;
 // var radius = 15;
 // var cameraDistance = 35;
