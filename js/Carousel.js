@@ -120,6 +120,31 @@ function createImagePlanes(input) {
         print.add(print2);
 
 
+        // var svgLoader = new THREE.SVGLoader();
+        // svgLoader.load(element.svg, function(paths) {
+        //     var group = new THREE.Group();
+        //     for (var i =0; i < paths.length; i++) {
+        //         var path = paths[i];
+        //         var material = new THREE.MeshBasicMaterial( {
+        //             color: path.color,
+        //             side: THREE.DoubleSide,
+        //             depthWrite: false
+        //         } );
+    
+        //         var shapes = path.toShapes( true );
+    
+        //         for ( var j = 0; j < shapes.length; j ++ ) {
+    
+        //             var shape = shapes[ j ];
+        //             var geometry = new THREE.ShapeBufferGeometry( shape );
+        //             var mesh = new THREE.Mesh( geometry, material );
+        //             group.add( mesh );
+    
+        //         }
+        //     }
+        //     print.add(group);
+        // });
+
         // var loader = new THREE.FontLoader();
 
         // loader.load('fonts/OpenSans-Bold.json', function (font) {
