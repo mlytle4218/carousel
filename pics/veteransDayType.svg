@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 133.05528 76.497292"
+   height="289.12363"
+   width="502.88611">
+  <defs
+     id="defs2" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(-28.673272,-59.881932)"
+     id="layer1">
+    <text
+       id="text817"
+       y="67.946426"
+       x="28.726189"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Sharp Grotesk Semibold Italic';-inkscape-font-specification:'Sharp Grotesk Semibold Italic, ';stroke-width:0.26458332"
+         y="67.946426"
+         x="28.726189"
+         id="tspan815">Veteran's Day</tspan></text>
+    <text
+       id="text821"
+       y="81.553574"
+       x="51.404758"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.26458332"
+         y="90.917343"
+         x="51.404758"
+         id="tspan819" /></text>
+    <flowRoot
+       transform="scale(0.26458333)"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       id="flowRoot823"
+       xml:space="preserve"><flowRegion
+         id="flowRegion825"><rect
+           y="296.80539"
+           x="88.571426"
+           height="277.14285"
+           width="525.71429"
+           id="rect827" /></flowRegion><flowPara
+         id="flowPara829" /></flowRoot>    <flowRoot
+       transform="matrix(0.26458333,0,0,0.26458333,0.75595238,-12.095238)"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:0.5;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       id="flowRoot831"
+       xml:space="preserve"><flowRegion
+         style="line-height:0.5"
+         id="flowRegion833"><rect
+           style="line-height:0.5"
+           y="316.80539"
+           x="107.77555"
+           height="254.15976"
+           width="502.41629"
+           id="rect835" /></flowRegion><flowPara
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:21.33333397px;line-height:0.5;font-family:'Sharp Grotesk Semibold';-inkscape-font-specification:'Sharp Grotesk Semibold, '"
+         id="flowPara837">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vel ex nibh. Morbi mattis luctus sem, in ornare metus mollis eget. Vivamus vitae turpis risus. Nam orci metus, porttitor sed nulla eu, faucibus pharetra sem. Nunc ultricies sem in velit pretium posuere. Praesent pretium ultrices augue, ut commodo purus suscipit sed. Praesent quis facilisis nulla. Sed pharetra vitae lacus eu laoreet. Donec mollis dictum turpis, non gravida diam finibus eu. Integer volutpat efficitur mauris, eget mollis justo vehicula sit amet. Phasellus quis ultricies felis, ut pharetra felis. Donec tempor at arcu quis lacinia. Curabitur arcu lacus, cursus eget purus sed, ornare tempus neque. Sed faucibus lectus id dictum euismod. Maecenas a rhoncus turpis.</flowPara></flowRoot>    <flowRoot
+       transform="scale(0.26458333)"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+       id="flowRoot843"
+       xml:space="preserve"><flowRegion
+         id="flowRegion845"><rect
+           y="354.9617"
+           x="151.06786"
+           height="115.52248"
+           width="168.84055"
+           id="rect847" /></flowRegion><flowPara
+         id="flowPara849" /></flowRoot>    <text
+       id="text853"
+       y="66.725563"
+       x="98.033043"
+       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       xml:space="preserve"><tspan
+         style="stroke-width:0.26458332"
+         y="76.089333"
+         x="98.033043"
+         id="tspan851" /></text>
+  </g>
+</svg>
