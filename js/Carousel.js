@@ -241,16 +241,32 @@ function fade() {
             if (element.children[0]) {
                 if (element.children[0].fade) {
                     // console.log(element.children[0].material.opacity);
+                    if (element.children[0].material.opacity >= 1){
+                        element.children[0].material.opacity = 0.999;
+                    }
                     if (element.children[0].material.opacity < 1) {
-                        element.children[0].material.opacity += fadeRate;
+                        // element.children[0].material.opacity += fadeRate;
+                        var prog = ((scene.children[1].rotation.y / (Math.PI / 2))) - Math.floor(((scene.children[1].rotation.y / (Math.PI / 2))));
+                        if (prog > 0 & prog < 0.5){
+                            element.children[0].material.opacity =1 - ( prog *2);
+                        } else {
+                            element.children[0].material.opacity = ((prog - 0.5)*2);
+                        }
+
 
 
                     }
 
                 } else {
-                    if (element.children[0].material.opacity > 0) {
-                        element.children[0].material.opacity -= fadeRate;
-                    }
+                    // if (element.children[0].material.opacity > 0) {
+                    //     // element.children[0].material.opacity -= fadeRate;
+                    //     var prog = ((scene.children[1].rotation.y / (Math.PI / 2))) - Math.floor(((scene.children[1].rotation.y / (Math.PI / 2))));
+                    //     if (prog > 0 & prog < 0.5){
+                    //         element.children[0].material.opacity = 1-(prog *2);
+                    //     } else {
+                    //         element.children[0].material.opacity = ((prog - 0.5)*2);
+                    //     }
+                    // }
 
                 }
             }
