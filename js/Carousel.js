@@ -110,13 +110,13 @@ function createImagePlanes(input) {
         // create a plane geometry for the image with a width of 10
         // and a height that preserves the image's aspect ratio
         // var geometry2 = new THREE.PlaneGeometry(radius/2.5, radius/17.5);
-        var geometry2 = new THREE.PlaneGeometry(251, 144);
+        var geometry2 = new THREE.PlaneGeometry(342, 30);
 
         // combine our image geometry and material into a mesh
         var print2 = new THREE.Mesh(geometry2, material2);
 
         // set the position of the image mesh in the x,y,z dimensions
-        print2.position.set(250, -50, 1);
+        print2.position.set(275, 0, 1);
         print.add(print2);
 
 
