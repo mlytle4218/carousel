@@ -7,15 +7,24 @@ module.exports = function (grunt) {
                 banner: "/*! <%= grunt.template.today() %> */\n"
             },
             build: {
-                src: ["js/Carousel.js"],
-                dest: "js/carInit.min.js"
+                src: ["dist/built.js"],
+                dest: "dist/carInit.min.js"
             }
         },
         watch: {
             scripts: {
-                files: ["js/Carousel.js"],
-                tasks: ["uglify"]
+                files: ["js/*"],
+                tasks: ["concat"]
             }
+        },
+        concat: {
+          options: {
+            separator: ';',
+          },
+          dist: {
+            src: ['js/three.js','js/Detector.js','js/SVGLoader.js','js/Carousel.js'],
+            dest: 'dist/built.js',
+          },
         }
     });
 
@@ -23,10 +32,13 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
 
     //create default task
-    grunt.registerTask("default", ["uglify"]);
+    grunt.registerTask("default", ["concat","uglify"]);
 
     //watch files
     grunt.loadNpmTasks('grunt-contrib-watch');
+
+    //concat files
+    grunt.loadNpmTasks('grunt-contrib-concat');
 
 
 };
