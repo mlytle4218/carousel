@@ -47210,7 +47210,7 @@ function createImagePlanes(input) {
 
                     var geometry = new THREE.ShapeBufferGeometry( shape );
                     var mesh = new THREE.Mesh( geometry, material );
-                    mesh.material.opacity =0;
+                    // mesh.material.opacity =0;
 
                     group.add( mesh );
 
@@ -47244,12 +47244,12 @@ function createImagePlanes(input) {
 
                         // var buttonGeometry = new THREE.PlaneBufferGeometry(200,100);
                         var buttonMesh = new THREE.Mesh( buttonGeometry, buttonMaterial );
-                        mesh.material.opacity =0;
+                        // mesh.material.opacity =0;
                         var scaleMesh = 0.6666;
                         buttonMesh.scale.set(scaleMesh,scaleMesh,scaleMesh);
                         buttonMesh.position.x = 0;
                         buttonMesh.position.y = 85;
-                        buttonMesh.material.opacity = 0;
+                        // buttonMesh.material.opacity = 0;
                         buttonMesh.button = true;
                         buttonMesh.url = element.url;
                         casterObjects.push(buttonMesh);
@@ -47293,23 +47293,41 @@ function createImagePlanes(input) {
 
 function fade() {
     if (imagesArray) {
+        var prog = ((scene.children[1].rotation.y /      ((2*Math.PI)/imagesArray.length)       )) - Math.floor(((scene.children[1].rotation.y / ((2*Math.PI)/imagesArray.length)     )));
         imagesArray.forEach(function (element) {
             if (element.children[0]) {
                 if (element.children[0].fade) {
+                    // console.log(element.children[0].children);
                     element.children[0].children.forEach( function (el) {
-                        if (el.material.opacity >= 1){
-                            el.material.opacity = 0.999;
-                        }
-                        if (el.material.opacity < 1) {
-                            var prog = ((scene.children[1].rotation.y / (Math.PI / 2))) - Math.floor(((scene.children[1].rotation.y / (Math.PI / 2))));
-                            if (prog > 0 & prog < 0.5){
-                                el.material.opacity =1 - ( prog *2);
-                            } else {
-                                el.material.opacity = ((prog - 0.5)*2); 
-                            }
-                        }
+                        el.material.visible = true;
+
+                        // if (prog > 0.1 & prog < 0.9){
+                        //     el.material.visible = true;
+                        // } else {
+                        //     el.material.visible = false;
+                        // }
+                        // console.log(prog);
+                        // if (el.material.opacity >= 1){
+                        //     el.material.opacity = 0.999;
+                        // }
+                        // if (el.material.opacity < 1) {
+                        //     var prog = ((scene.children[1].rotation.y /      ((2*Math.PI)/imagesArray.length)       )) - Math.floor(((scene.children[1].rotation.y / ((2*Math.PI)/imagesArray.length)     )));
+                        //     // if (prog > 0 & prog < 0.5){
+                        //     //     el.material.opacity =1 - ( prog *2);
+                        //     // } else {
+                        //     //     el.material.opacity = ((prog - 0.5)*2); 
+                        //     // }
+                        //     if (prog > 0 & prog < 1){
+                        //         el.material.visible = true;
+                        //     } else {
+                        //         el.material.visible = false;
+                        //     }
+                        // }
                     });
                 } else {
+                    element.children[0].children.forEach( function (el) {
+                        el.material.visible = false;
+                    })
                     // if (element.children[0].material.opacity > 0) {
                     //     // element.children[0].material.opacity -= fadeRate;
                     //     var prog = ((scene.children[1].rotation.y / (Math.PI / 2))) - Math.floor(((scene.children[1].rotation.y / (Math.PI / 2))));
@@ -47396,26 +47414,28 @@ function onWindowResize() {
 // actually animating the scene including orbit changes
 
 function animateCar() {
-    var rotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y / (Math.PI / 2)));
-    if ((rotationInRadiansPerUnit % 4) == 0) {
-        working = 0;
-    }
+    var rotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y / ((2*Math.PI)/imagesArray.length)));
+    // if ((rotationInRadiansPerUnit % imagesArray.length) == 0) {
+    //     working = 0;
+    // }
 
-    working++;
+    // working++;
+
+    // console.log(scene.children[1].rotation.y);
 
     // ugly ugly ugly inversion to allow for this to work backwards
     var inversionArray = [0, 3, 2, 1];
 
-    var direction = 0;
-    if (rotationInRadiansPerUnit <= 0) {
-        direction = -1;
-    } else {
-        direction = 1;
-    }
+    // var direction = 0;
+    // if (rotationInRadiansPerUnit <= 0) {
+    //     direction = -1;
+    // } else {
+    //     direction = 1;
+    // }
     if (imagesArray) {
         if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % imagesArray.length)].children[0]) {
             if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % imagesArray.length)].children[0].children[0].material) {
-                if (direction < 0) {
+                if (rotationInRadiansPerUnit < 0) {
                     var negRotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y /    ((Math.PI * 2) / imagesArray.length)    ));
                     imagesArray.forEach(function (element) {
                         element.children[0].fade = false;
@@ -47430,8 +47450,33 @@ function animateCar() {
                 }
             }
         }
+        imagesArray.forEach(function (element, it){
+            if (element.children[0]){
+                // console.log(it+":"+element.children[0].fade);
+
+            }
+        })
     }
+
     fade();
+    // if (scene.children[1]){
+    // if (scene.children[1].children){
+    //     if (scene.children[1].children[0].children){
+    //         if (scene.children[1].children[0].children[0].children){
+    //             if (scene.children[1].children[0].children[0].children[0]){
+    //                 if (scene.children[1].children[0].children[0].children[0].children[0].material.opacity){
+    //                     console.log(scene.children[1].children[0].children[0].children[0].children[0].material.opacity);
+
+    //                 }
+
+    //             }
+
+    //         }
+
+    //     }
+    // }
+    // }
+    // console.log(scene.children[1].children[0].children[0].children[0].children[0].material.opacity);
 
     requestAnimationFrame(animateCar);
 
@@ -47464,7 +47509,6 @@ function onMouseDown(event) {mouseDown = true;
     event.preventDefault();
 
     // update the picking ray with the camera and mouse position
-    // console.log(mouse);
     mouse.x = ( event.offsetX / container.clientWidth ) * 2 - 1;
     mouse.y = - ( event.offsetY / container.clientHeight ) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
@@ -47474,7 +47518,6 @@ function onMouseDown(event) {mouseDown = true;
     var intersects = raycaster.intersectObjects(casterObjects);
     if (intersects.length > 0) {
         inter = intersects[0];
-        // console.log(inter.object.url);
         window.location = inter.object.url;
         
     }
