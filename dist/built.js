@@ -47217,24 +47217,65 @@ function createImagePlanes(input) {
                 }
 
             }
-            var buttonGeometry = new THREE.PlaneBufferGeometry(200,100);
-            var buttonMaterial = new THREE.MeshBasicMaterial( {
-                color: 0xff0000,
-                side: THREE.DoubleSide
-            } );
-            var buttonMesh = new THREE.Mesh(buttonGeometry, buttonMaterial);
-            buttonMesh.position.x = 200;
-            buttonMesh.position.y = 200;
-            buttonMesh.material.opacity = 0;
-            buttonMesh.button = true;
-            buttonMesh.url = element.url;
-            casterObjects.push(buttonMesh);
+            loader.load( element.shop, function ( paths ) {
+
+                // var group = new THREE.Group();
+                // group.scale.multiplyScalar( 0.25 );
+                // group.position.x = - 70;
+                // group.position.y = 70;
+                // group.scale.y *= -1;
+    
+                for ( var i = 0; i < paths.length; i ++ ) {
+    
+                    var path = paths[ i ];
+    
+                    var buttonMaterial = new THREE.MeshBasicMaterial( {
+                        color: path.color,
+                        side: THREE.DoubleSide
+                    } );
+    
+                    var shapes = path.toShapes( true );
+    
+                    for ( var j = 0; j < shapes.length; j ++ ) {
+    
+                        var shape = shapes[ j ];
+    
+                        var buttonGeometry = new THREE.ShapeBufferGeometry( shape );
+
+                        // var buttonGeometry = new THREE.PlaneBufferGeometry(200,100);
+                        var buttonMesh = new THREE.Mesh( buttonGeometry, buttonMaterial );
+                        mesh.material.opacity =0;
+                        var scaleMesh = 0.6666;
+                        buttonMesh.scale.set(scaleMesh,scaleMesh,scaleMesh);
+                        buttonMesh.position.x = 0;
+                        buttonMesh.position.y = 85;
+                        buttonMesh.material.opacity = 0;
+                        buttonMesh.button = true;
+                        buttonMesh.url = element.url;
+                        casterObjects.push(buttonMesh);
+    
+                        group.add( buttonMesh );
+    
+                    }
+    
+                }});
+            // var buttonMaterial = new THREE.MeshBasicMaterial( {
+            //     color: 0xff0000,
+            //     side: THREE.DoubleSide
+            // } );
+            // var buttonMesh = new THREE.Mesh(buttonGeometry, buttonMaterial);
+            // buttonMesh.position.x = 200;
+            // buttonMesh.position.y = 200;
+            // buttonMesh.material.opacity = 0;
+            // buttonMesh.button = true;
+            // buttonMesh.url = element.url;
+            // casterObjects.push(buttonMesh);
 
 
-            group.add(buttonMesh);
+            // group.add(buttonMesh);
 
-            group.position.set(85, 20, 1);
-            group.name = "svg";
+            group.position.set(100, 20, 1);
+            // group.name = "svg";
             print.add( group );
 
         } );
@@ -47372,20 +47413,20 @@ function animateCar() {
         direction = 1;
     }
     if (imagesArray) {
-        if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % 4)].children[0]) {
-            if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % 4)].children[0].children[0].material) {
+        if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % imagesArray.length)].children[0]) {
+            if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % imagesArray.length)].children[0].children[0].material) {
                 if (direction < 0) {
-                    var negRotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y / (Math.PI / 2)));
+                    var negRotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y /    ((Math.PI * 2) / imagesArray.length)    ));
                     imagesArray.forEach(function (element) {
                         element.children[0].fade = false;
                     });
-                    imagesArray[(Math.abs(negRotationInRadiansPerUnit) % 4)].children[0].fade = true;
+                    imagesArray[(Math.abs(negRotationInRadiansPerUnit) % imagesArray.length)].children[0].fade = true;
                 } else {
-                    var posRotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y / (Math.PI / 2)) + 0.50);
+                    var posRotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y / ((Math.PI * 2) / imagesArray.length) ) + 0.50);
                     imagesArray.forEach(function (element) {
                         element.children[0].fade = false;
                     });
-                    imagesArray[inversionArray[(Math.abs(posRotationInRadiansPerUnit) % 4)]].children[0].fade = true;
+                    imagesArray[inversionArray[(Math.abs(posRotationInRadiansPerUnit) % imagesArray.length)]].children[0].fade = true;
                 }
             }
         }
