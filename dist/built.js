@@ -47274,7 +47274,7 @@ function createImagePlanes(input) {
 
             // group.add(buttonMesh);
 
-            group.position.set(100, 20, 1);
+            group.position.set(100, -10, 1);
             // group.name = "svg";
             print.add( group );
 
