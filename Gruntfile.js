@@ -22,7 +22,7 @@ module.exports = function (grunt) {
             separator: ';',
           },
           dist: {
-            src: ['js/three.js','js/Detector.js','js/SVGLoader.js','js/Carousel.js'],
+            src: ['js/three.js','js/Detector.js','js/SVGLoader.js','js/Carousel2.js'],
             dest: 'dist/built.js',
           },
         }

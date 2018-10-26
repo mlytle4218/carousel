@@ -47104,6 +47104,11 @@ var fadeOutObject;
 var fadeRate = 0.005;
 var casterObjects = [];
 
+var casterObjects2 = [];
+var oneRotation = 2*Math.PI;
+var destination = false;
+var destinationObject;
+
 
 var inter;
 var working = 0;
@@ -47119,7 +47124,7 @@ var averageY = [0, 0];
 
 
 var raycaster = new THREE.Raycaster();
-var mouse = new THREE.Vector2();
+// var mouse = new THREE.Vector2();
 
 
 // For the basic scene elements *note: lessen this later
@@ -47210,7 +47215,7 @@ function createImagePlanes(input) {
 
                     var geometry = new THREE.ShapeBufferGeometry( shape );
                     var mesh = new THREE.Mesh( geometry, material );
-                    // mesh.material.opacity =0;
+                    mesh.material.visible = false;
 
                     group.add( mesh );
 
@@ -47249,10 +47254,10 @@ function createImagePlanes(input) {
                         buttonMesh.scale.set(scaleMesh,scaleMesh,scaleMesh);
                         buttonMesh.position.x = 0;
                         buttonMesh.position.y = 85;
-                        // buttonMesh.material.opacity = 0;
+                        buttonMesh.material.visible = false;
                         buttonMesh.button = true;
-                        buttonMesh.url = element.url;
-                        casterObjects.push(buttonMesh);
+                        // buttonMesh.url = element.url;
+                        casterObjects2.push(buttonMesh);
     
                         group.add( buttonMesh );
     
@@ -47269,7 +47274,7 @@ function createImagePlanes(input) {
             // buttonMesh.material.opacity = 0;
             // buttonMesh.button = true;
             // buttonMesh.url = element.url;
-            // casterObjects.push(buttonMesh);
+            // casterObjects2.push(buttonMesh);
 
 
             // group.add(buttonMesh);
@@ -47277,6 +47282,7 @@ function createImagePlanes(input) {
             group.position.set(100, -10, 1);
             // group.name = "svg";
             print.add( group );
+            casterObjects.push(print);
 
         } );
 
@@ -47458,7 +47464,16 @@ function animateCar() {
         })
     }
 
-    fade();
+
+
+
+
+    // fade();
+
+
+
+
+
     // if (scene.children[1]){
     // if (scene.children[1].children){
     //     if (scene.children[1].children[0].children){
@@ -47479,12 +47494,13 @@ function animateCar() {
     // console.log(scene.children[1].children[0].children[0].children[0].children[0].material.opacity);
 
     requestAnimationFrame(animateCar);
+renderer.render(scene, camera);
 
-    renderer.render(scene, camera);
+if (speed < 0.0001 || speed > 0.0001) {
+    speed = speed * 0.99;
+}
 
-    if (speed < 0.0001 || speed > 0.0001) {
-        speed = speed * 0.99;
-    }
+if (!destination) {
 
     if (mouseOver) {
         rotateParent(getRotationRate() / 2);
@@ -47498,6 +47514,44 @@ function animateCar() {
         }
 
     }
+
+} else {
+    if (destinationObject.object.parent.parent.rotation.y < 0) {
+        var delta = destinationObject.object.parent.parent.rotation.y % oneRotation;
+        var rotationToInitial = destinationObject.object.parent.parent.rotation.y -  delta;
+
+        var destinationPoint  =  rotationToInitial -  (destinationObject.object.parent.rotation.y*1.2);
+        mouseOver = true;
+        if (Math.abs(Math.abs(destinationObject.object.parent.parent.rotation.y) - Math.abs(destinationPoint)) < 0.01  ){
+            rotationRate = 0;
+            destinationObject.object.children[0].children.forEach(function (element, index){
+                setTimeout(function(){
+                    element.material.visible = true;
+                },
+                62.5 * index);
+                // setTimeout(function (){
+                //     element.material.visible = true;
+                // },1000);
+                // element.material.visible = true;
+            })
+        } else {
+            if (Math.abs(destinationObject.object.parent.parent.rotation.y) > Math.abs(destinationPoint)){
+                rotationRate = 0.02;
+            } else {
+                rotationRate = -0.02;
+            }
+        }
+    }
+    rotateParent(getRotationRate());
+
+
+}
+
+}
+function bringObjectToFront(object){
+
+    destination = true;
+    destinationObject = object;
 
 }
 
@@ -47514,14 +47568,27 @@ function onMouseDown(event) {mouseDown = true;
     raycaster.setFromCamera(mouse, camera);
 
     // calculate objects intersecting the picking ray
-    // var intersects = raycaster.intersectObjects(scene.children[0], true);
     var intersects = raycaster.intersectObjects(casterObjects);
     if (intersects.length > 0) {
+        console.log(intersects);
         inter = intersects[0];
-        window.location = inter.object.url;
-        
+        bringObjectToFront(inter);
+    } else {
+        rotationRate = -0.05;
     }
-    if (inContainer(event)) {
+    var otherIntersects = raycaster.intersectObjects(casterObjects2);
+    if (otherIntersects.length >0){
+        destination = false;
+        rotationRate = -0.005;
+        // console.log(Object.keys( destinationObject.object.children[0].children));
+        // for (var i = 0; i < destinationObject.object.children[0].children.length; i++){
+        //     console.log(destinationObject.object.children[0].children[i]);
+        //     // destinationObject.object.children[0].children[i].material.visible = false;
+        // }
+        destinationObject.object.children[0].children.forEach(function (element){
+            element.material.visible = false;
+            console.log(element);
+        })
         
     }
 }
