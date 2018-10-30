@@ -47288,8 +47288,6 @@ function createImagePlanes(input){
 }
 
 function AnimateModels(rate) {
-    var moveSpeed = 5;
-    var moveDistance = 500;
     var AMRotationRate = rate;
     var AMSubjectModel;
     var AMIsRotating = true;
@@ -47328,10 +47326,7 @@ function AnimateModels(rate) {
         }
     }
     this.bringToFront = function(){
-        if (AMSubjectModel){
-            // var currentParPos = AMSubjectModel.parent.parent.rotation.y + 0.05;
-            // var objPos = (currentParPos + AMSubjectModel.parent.rotation.y);
-            
+        if (AMSubjectModel){            
             if (Math.abs(targetRotationPosition-AMSubjectModel.parent.parent.rotation.y)>0.01){
                 if (targetRotationPosition>AMSubjectModel.parent.parent.rotation.y){
                     this.extendZwithPercent(1-(targetRotationPosition-AMSubjectModel.parent.parent.rotation.y)/targetRotationTotalDistance);
