@@ -29,7 +29,7 @@ module.exports = function (grunt) {
     });
 
     //load uglify plugin
-    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-uglify-es');
 
     //create default task
     grunt.registerTask("default", ["concat","uglify"]);

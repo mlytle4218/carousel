@@ -47188,13 +47188,27 @@ function animateCarousel(){
     renderer.render(scene, camera);
 }
 
+function getImage(image){
+    var imageCanvas = document.createElement('canvas');
+    imageCanvas.width = image.width;
+    imageCanvas.height = image.height;
+    var context = imageCanvas.getContext('2d');
+    context.drawImage(image,0,0);
+    return context.getImageData(0,0,image.width, image.height);
+}
+function getPixel( imagedata, x, y ) {
+    var position = ( x + imagedata.width * y ) * 4;
+    var data = imagedata.data;
+    return { r: data[ position ], g: data[ position + 1 ], b: data[ position + 2 ], a: data[ position + 3 ] };
+}
+
 function createImagePlanes(input){
     var resultArray = [];
     input.files.forEach(function (element, it) {
-        var textLoader = new THREE.TextureLoader();
+        var textureLoader = new THREE.TextureLoader();
 
         var printMaterial = new THREE.MeshLambertMaterial({
-            map: textLoader.load(element.pic)
+            map: textureLoader.load(element.pic)
         });
 
         printMaterial.transparent = true;
@@ -47279,7 +47293,102 @@ function createImagePlanes(input){
             });
             group.position.x = 2100;
             group.position.y = 20;
+            var thisOpacity = 1;
+            var thisZPosition = -0.2;
             print.add(group);
+            var circleGroup = new THREE.Object3D();
+            var circleGeometry = new THREE.CircleBufferGeometry( 25, 32 );
+            var circleMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+            var circle1 = new THREE.Mesh( circleGeometry, circleMaterial );
+            circle1.position.x = -110;
+            circle1.position.y = -110;
+            circle1.position.z = thisZPosition;
+            circle1.material.opacity = thisOpacity;
+            circle1.printObject = print;
+            circleGroup.add(circle1)
+            planeCasters.push(circle1);
+
+            var circleGeometry = new THREE.CircleBufferGeometry( 25, 32 );
+            var circle2 = new THREE.Mesh( circleGeometry, circleMaterial );
+            circle2.position.x = -90;
+            circle2.position.y = -110;
+            circle2.position.z = thisZPosition;
+            circle2.material.opacity = thisOpacity;
+            circle2.printObject = print;
+            circleGroup.add(circle2);
+            planeCasters.push(circle2);
+
+            var circleGeometry = new THREE.CircleBufferGeometry( 40, 32 );
+            var circle3 = new THREE.Mesh( circleGeometry, circleMaterial );
+            circle3.position.x = -60;
+            circle3.position.y = -105;
+            circle3.position.z = thisZPosition;
+            circle3.material.opacity = thisOpacity;
+            circle3.printObject = print;
+            circleGroup.add(circle3);
+            planeCasters.push(circle3);
+
+            var circleGeometry = new THREE.CircleBufferGeometry( 45, 32 );
+            var circle4 = new THREE.Mesh( circleGeometry, circleMaterial );
+            circle4.position.x = -30;
+            circle4.position.y = -100;
+            circle4.position.z = thisZPosition;
+            circle4.material.opacity = thisOpacity;
+            circle4.printObject = print;
+            circleGroup.add(circle4);
+            planeCasters.push(circle4);
+
+            var circleGeometry = new THREE.CircleBufferGeometry( 50, 32 );
+            var circle5 = new THREE.Mesh( circleGeometry, circleMaterial );
+            circle5.position.x = 0;
+            circle5.position.y = -85;
+            circle5.position.z = thisZPosition;
+            circle5.material.opacity = thisOpacity;
+            circle5.printObject = print;
+            circleGroup.add(circle5);
+            planeCasters.push(circle5);
+
+            var circleGeometry = new THREE.CircleBufferGeometry( 50, 32 );
+            var circle6 = new THREE.Mesh( circleGeometry, circleMaterial );
+            circle6.position.x = 30;
+            circle6.position.y = -80;
+            circle6.position.z = thisZPosition;
+            circle6.material.opacity = thisOpacity;
+            circle6.printObject = print;
+            circleGroup.add(circle6);
+            planeCasters.push(circle6);
+
+            var circleGeometry = new THREE.CircleBufferGeometry( 50, 32 );
+            var circle7 = new THREE.Mesh( circleGeometry, circleMaterial );
+            circle7.position.x = 35;
+            circle7.position.y = -45;
+            circle7.position.z = thisZPosition;
+            circle7.material.opacity = thisOpacity;
+            circle7.printObject = print;
+            circleGroup.add(circle7);
+            planeCasters.push(circle7);
+
+            var circleGeometry = new THREE.CircleBufferGeometry( 35, 32 );
+            var circle8 = new THREE.Mesh( circleGeometry, circleMaterial );
+            circle8.position.x = 35;
+            circle8.position.y = -10;
+            circle8.position.z = thisZPosition;
+            circle8.material.opacity = thisOpacity;
+            circle8.printObject = print;
+            circleGroup.add(circle8);
+            planeCasters.push(circle8);
+
+            var circleGeometry = new THREE.CircleBufferGeometry( 35, 32 );
+            var circle9 = new THREE.Mesh( circleGeometry, circleMaterial );
+            circle9.position.x = 70;
+            circle9.position.y = -85;
+            circle9.position.z = thisZPosition;
+            circle9.material.opacity = thisOpacity;
+            circle9.printObject = print;
+            circleGroup.add(circle9);
+            // planeCasters.push(circle9);
+
+            // print.add(circleGroup);
         });
         resultArray.push(print);
         planeCasters.push(print);
@@ -47427,13 +47536,20 @@ function onMouseDown(event){
     mouseDown = true;
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects(planeCasters);
-    if (intersects.length > 0){
-        // console.log(intersects[0].object);
-        animateModels.designateObject(intersects[0].object);
+    for (let element of intersects){
+        var alpha = getPixel(
+            getImage(element.object.material.map.image),
+            Math.floor(element.object.material.map.image.width * element.uv.x),
+            Math.floor(element.object.material.map.image.height * (1-element.uv.y))
+            ).a;
+        if (alpha == 255){
+            animateModels.designateObject(element.object);
+            break;
+        }
     }
+
     var intersectsButtons = raycaster.intersectObjects(buttonCasters);
     if (intersectsButtons.length > 0){
-        // console.log(intersectsButtons);
         animateModels.deselectObject(intersectsButtons[0].object);
     }
 }
