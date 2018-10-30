@@ -204,15 +204,21 @@ function AnimateModels(rate) {
     var AMRotationRate = rate;
     var AMSubjectModel;
     var AMIsRotating = true;
-    var lastRotationPosition = 0;
+    var targetRotationPosition = 0;
+    var targetRotationTotalDistance;
     var bringToFrontWorking = false;
     var ModelInitialPosition = new THREE.Vector3();
     var choiceNotMade = true;
     var AMAnimateSVG = false;
+    var AMOffSet = -0.05;
     this.tick = function () {
         if (AMIsRotating){
             this.rotate(1);
             this.extendZ();
+            if (AMSubjectModel){
+                this.hideSVG();
+
+            }
         } else if(bringToFrontWorking) { 
             this.bringToFront();
         } else if (AMAnimateSVG){
@@ -220,41 +226,36 @@ function AnimateModels(rate) {
         }
     }
     this.showSVG = function() {
-        if (AMSubjectModel.children[0].position.x > 100){
-            AMSubjectModel.children[0].position.x -= 50;
+        if (AMSubjectModel.children[0].position.x > 150){
+            AMSubjectModel.children[0].position.x -= 70;
 
+        }
+    }
+    this.hideSVG = function() {
+        if (AMSubjectModel.children[0].position.x < 500){
+            AMSubjectModel.children[0].position.x += 100;
+        } else if (AMSubjectModel.children[0].position.x < 2100){
+            AMSubjectModel.children[0].position.x = 2100;
         }
     }
     this.bringToFront = function(){
         if (AMSubjectModel){
-            var currentParPos = AMSubjectModel.parent.parent.rotation.y + 0.05;
-            var objPos = (currentParPos + AMSubjectModel.parent.rotation.y)%(2*Math.PI);
+            // var currentParPos = AMSubjectModel.parent.parent.rotation.y + 0.05;
+            // var objPos = (currentParPos + AMSubjectModel.parent.rotation.y);
+            
+            if (Math.abs(targetRotationPosition-AMSubjectModel.parent.parent.rotation.y)>0.01){
+                if (targetRotationPosition>AMSubjectModel.parent.parent.rotation.y){
+                    this.extendZwithPercent(1-(targetRotationPosition-AMSubjectModel.parent.parent.rotation.y)/targetRotationTotalDistance);
+                    this.rotate(-4);
+                } else {
+                    this.extendZwithPercent(1-(targetRotationPosition-AMSubjectModel.parent.parent.rotation.y)/targetRotationTotalDistance);
+                    this.rotate(4);
+                }
+            }else {
 
-
-            var adjRelRot;
-            if (Math.abs(objPos) > Math.PI){
-                adjRelRot = Math.PI - Math.abs(objPos + Math.PI);
-                console.log("if");
-            } else {
-                adjRelRot = objPos;
-                console.log("adjRelRot/10:"+(adjRelRot/lastRotationPosition));
-            }
-
-
-
-            if ((Math.abs(objPos) < 0.05)){
                 bringToFrontWorking = false;
                 AMSubjectModel.children[0].position.x = 300;
                 AMAnimateSVG = true;
-
-            } else {
-                if (adjRelRot < 0 ){
-                    this.rotate(-4);
-                } else {
-                    this.rotate(4);
-                }
-                this.extendZwithPercent(adjRelRot/lastRotationPosition);
-                console.log(1-adjRelRot/lastRotationPosition);
             }
         }
     }
@@ -278,8 +279,8 @@ function AnimateModels(rate) {
     this.extendZwithPercent = function(percent){
         scene.children[1].children.forEach(function(element) {
             if (element.children[0].animating == 1 & element.children[0].position.z < presentationPosition.z){
-                element.children[0].position.z = ((presentationPosition.z - ModelInitialPosition.z) * (1-percent)) + ModelInitialPosition.z ;
-                element.children[0].position.y = ((presentationPosition.y - ModelInitialPosition.y) * (1-percent)) + ModelInitialPosition.y ;
+                element.children[0].position.z = ((presentationPosition.z - ModelInitialPosition.z) * (percent)) + ModelInitialPosition.z ;
+                element.children[0].position.y = ((presentationPosition.y - ModelInitialPosition.y) * (percent)) + ModelInitialPosition.y ;
             } else if (element.children[0].animating == -1 & element.children[0].position.z > initialRelativePosition.z) {
                 element.children[0].position.z -= 2;
             }
@@ -299,19 +300,16 @@ function AnimateModels(rate) {
         });
     }
     this.designateObject = function (object) {
-        console.log(object);
         if (choiceNotMade){
             AMSubjectModel = object;
-
-            var currentParPos = AMSubjectModel.parent.parent.rotation.y + 0.157;
-            var objPos = (currentParPos + AMSubjectModel.parent.rotation.y)%(2*Math.PI);
-            var adjRelRot;
-                if (Math.abs(objPos) > Math.PI){
-                    adjRelRot = Math.PI - Math.abs(objPos + Math.PI);
-                } else {
-                    adjRelRot = objPos;
-                }
-            lastRotationPosition = adjRelRot;
+            var relativeRotation = (AMSubjectModel.parent.parent.rotation.y + AMSubjectModel.parent.rotation.y)%(2*Math.PI);
+            if (  Math.abs(relativeRotation)      > Math.PI){
+                targetRotationPosition = AMSubjectModel.parent.parent.rotation.y +AMOffSet  - (Math.PI-(Math.abs(relativeRotation)-Math.PI));
+                targetRotationTotalDistance = targetRotationPosition - AMSubjectModel.parent.parent.rotation.y;
+            } else {
+                targetRotationPosition = AMSubjectModel.parent.parent.rotation.y + AMOffSet +Math.abs(relativeRotation);
+                targetRotationTotalDistance = targetRotationPosition - AMSubjectModel.parent.parent.rotation.y;
+            }
             ModelInitialPosition.copy(object.position);
 
             planeCasters.forEach(function(element) {
@@ -325,11 +323,9 @@ function AnimateModels(rate) {
         }
     }
     this.deselectObject = function(object) {
-        this.showSVG(false);
         planeCasters.forEach(function(element){
             element.animating = -1;
         });
-        AMSubjectModel.children[0].position.x = 2100;
         AMIsRotating = true;
         choiceNotMade = true;
     }

@@ -47087,273 +47087,48 @@ THREE.SVGLoader.prototype = {
 	}
 
 };
-;/*
-	Developed my Marc Lytle 2018
-*/
-// setting global variables here for control
-// For the container the carousel will be in
-var container;
-var rotationRate = -0.005;
-var speed = 0;
+;// configuration variables
 var radius = 430;
+var objectRadius = 400;
 var cameraDistance = 1000;
-var zoomedCameraDistance = 800;
-var cameraZoomRate = 10;
-var fadeInObject;
-var fadeOutObject;
-var fadeRate = 0.005;
-var casterObjects = [];
-
-var casterObjects2 = [];
-var oneRotation = 2*Math.PI;
-var destination = false;
-var destinationObject;
+var rotationRate = -0.005;
+var ambientLightColor = 0xffffff;
+var initialRelativePosition = new THREE.Vector3(0,-3,400);
+var presentationPosition = new THREE.Vector3(0,50,650);
 
 
-var inter;
-var working = 0;
-
-// globals for mouse tracking
-var mouseDown = false;
-var mouseOver = false;
-var timeStamp = null;
-var prevMouseX = null;
-var prevMouseY = null;
-var averageX = [0, 0];
-var averageY = [0, 0];
-
+// global models
+var renderer;
+var scene;
+var camera;
+var container;
+var mouseOver;
+var mouseDown;
+var animateModels;
+var planeCasters = [];
+var buttonCasters = [];
 
 var raycaster = new THREE.Raycaster();
-// var mouse = new THREE.Vector2();
 
 
-// For the basic scene elements *note: lessen this later
-var camera, scene, renderer, light, mouse;
-
-// For the images we will be rotating
-var imagesArray;
-var svgsArray;
-
-// For some basic configuration *note: this is just to making changes easier later
 var connectingElement = 'carousel';
-var ambientLightColor = 0xffffff;
 
+function start(fileArray){
+    var imagesArray = createImagePlanes(fileArray);
 
-// The main entryway to the script
-function start(fileArray) {
-    // getting the container
     container = document.getElementById(connectingElement);
-    imagesArray = createImagePlanes(fileArray);
-    initCar(imagesArray);
-    animateCar();
+
     container.addEventListener('mousedown', onMouseDown, false);
-
     container.addEventListener('mouseup', onMouseUp, false);
-
     container.addEventListener('mousemove', onMouseMove, false);
-
     container.addEventListener('mouseover', onMouseOver, false);
     container.addEventListener('mouseout', onMouseOff, false);
+    window.addEventListener('resize', onWindowResize, false);
+
+    initCarousel(imagesArray);
 }
 
-// takes an array with image file locations
-// returns an array of plane geometries with the images grafted onto them.
-function createImagePlanes(input) {
-    var resultArray = [];
-    var imageArray = [];
-
-    input.files.forEach(function (element) {
-        imageArray.push(element.pic);
-    });
-
-    input.files.forEach(function (element) {
-        var loader = new THREE.TextureLoader();
-
-        // Load image file into a custom material
-        var material = new THREE.MeshLambertMaterial({
-            map: loader.load(element.pic)
-        });
-
-        // Allow the transparencies to work
-        material.transparent = true;
-
-        // create a plane geometry for the image with a width of 10
-        // and a height that preserves the image's aspect ratio
-        var geometry = new THREE.PlaneBufferGeometry(radius, radius);
-
-        // combine our image geometry and material into a mesh
-        var print = new THREE.Mesh(geometry, material);
-
-        // set the position of the image mesh in the x,y,z dimensions
-        print.position.set(0, -3, 0);
-        // print.url = element.url;
-        // print.name = "print";
-
-        var loader = new THREE.SVGLoader();
-        loader.load( element.svg, function ( paths ) {
-
-            var group = new THREE.Group();
-            group.scale.multiplyScalar( 0.25 );
-            group.position.x = - 70;
-            group.position.y = 70;
-            group.scale.y *= -1;
-
-            for ( var i = 0; i < paths.length; i ++ ) {
-
-                var path = paths[ i ];
-
-                var material = new THREE.MeshBasicMaterial( {
-                    color: path.color,
-                    side: THREE.DoubleSide
-                } );
-
-                var shapes = path.toShapes( true );
-
-                for ( var j = 0; j < shapes.length; j ++ ) {
-
-                    var shape = shapes[ j ];
-
-                    var geometry = new THREE.ShapeBufferGeometry( shape );
-                    var mesh = new THREE.Mesh( geometry, material );
-                    mesh.material.visible = false;
-
-                    group.add( mesh );
-
-                }
-
-            }
-            loader.load( element.shop, function ( paths ) {
-
-                // var group = new THREE.Group();
-                // group.scale.multiplyScalar( 0.25 );
-                // group.position.x = - 70;
-                // group.position.y = 70;
-                // group.scale.y *= -1;
-    
-                for ( var i = 0; i < paths.length; i ++ ) {
-    
-                    var path = paths[ i ];
-    
-                    var buttonMaterial = new THREE.MeshBasicMaterial( {
-                        color: path.color,
-                        side: THREE.DoubleSide
-                    } );
-    
-                    var shapes = path.toShapes( true );
-    
-                    for ( var j = 0; j < shapes.length; j ++ ) {
-    
-                        var shape = shapes[ j ];
-    
-                        var buttonGeometry = new THREE.ShapeBufferGeometry( shape );
-
-                        // var buttonGeometry = new THREE.PlaneBufferGeometry(200,100);
-                        var buttonMesh = new THREE.Mesh( buttonGeometry, buttonMaterial );
-                        // mesh.material.opacity =0;
-                        var scaleMesh = 0.6666;
-                        buttonMesh.scale.set(scaleMesh,scaleMesh,scaleMesh);
-                        buttonMesh.position.x = 0;
-                        buttonMesh.position.y = 85;
-                        buttonMesh.material.visible = false;
-                        buttonMesh.button = true;
-                        // buttonMesh.url = element.url;
-                        casterObjects2.push(buttonMesh);
-    
-                        group.add( buttonMesh );
-    
-                    }
-    
-                }});
-            // var buttonMaterial = new THREE.MeshBasicMaterial( {
-            //     color: 0xff0000,
-            //     side: THREE.DoubleSide
-            // } );
-            // var buttonMesh = new THREE.Mesh(buttonGeometry, buttonMaterial);
-            // buttonMesh.position.x = 200;
-            // buttonMesh.position.y = 200;
-            // buttonMesh.material.opacity = 0;
-            // buttonMesh.button = true;
-            // buttonMesh.url = element.url;
-            // casterObjects2.push(buttonMesh);
-
-
-            // group.add(buttonMesh);
-
-            group.position.set(100, -10, 1);
-            // group.name = "svg";
-            print.add( group );
-            casterObjects.push(print);
-
-        } );
-
-
-
-        
-
-        resultArray.push(print);
-    });
-    return resultArray;
-}
-
-
-
-function fade() {
-    if (imagesArray) {
-        var prog = ((scene.children[1].rotation.y /      ((2*Math.PI)/imagesArray.length)       )) - Math.floor(((scene.children[1].rotation.y / ((2*Math.PI)/imagesArray.length)     )));
-        imagesArray.forEach(function (element) {
-            if (element.children[0]) {
-                if (element.children[0].fade) {
-                    // console.log(element.children[0].children);
-                    element.children[0].children.forEach( function (el) {
-                        el.material.visible = true;
-
-                        // if (prog > 0.1 & prog < 0.9){
-                        //     el.material.visible = true;
-                        // } else {
-                        //     el.material.visible = false;
-                        // }
-                        // console.log(prog);
-                        // if (el.material.opacity >= 1){
-                        //     el.material.opacity = 0.999;
-                        // }
-                        // if (el.material.opacity < 1) {
-                        //     var prog = ((scene.children[1].rotation.y /      ((2*Math.PI)/imagesArray.length)       )) - Math.floor(((scene.children[1].rotation.y / ((2*Math.PI)/imagesArray.length)     )));
-                        //     // if (prog > 0 & prog < 0.5){
-                        //     //     el.material.opacity =1 - ( prog *2);
-                        //     // } else {
-                        //     //     el.material.opacity = ((prog - 0.5)*2); 
-                        //     // }
-                        //     if (prog > 0 & prog < 1){
-                        //         el.material.visible = true;
-                        //     } else {
-                        //         el.material.visible = false;
-                        //     }
-                        // }
-                    });
-                } else {
-                    element.children[0].children.forEach( function (el) {
-                        el.material.visible = false;
-                    })
-                    // if (element.children[0].material.opacity > 0) {
-                    //     // element.children[0].material.opacity -= fadeRate;
-                    //     var prog = ((scene.children[1].rotation.y / (Math.PI / 2))) - Math.floor(((scene.children[1].rotation.y / (Math.PI / 2))));
-                    //     if (prog > 0 & prog < 0.5){
-                    //         element.children[0].material.opacity = 1-(prog *2);
-                    //     } else {
-                    //         element.children[0].material.opacity = ((prog - 0.5)*2);
-                    //     }
-                    // }
-
-                }
-            }
-        })
-    }
-}
-
-
-function initCar(planesArray) {
-
-
+function initCarousel(planesArray){
 
     // setting up the camera - this position just looks a little better to me
     camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 2000);
@@ -47373,15 +47148,15 @@ function initCar(planesArray) {
 
     // parent
     parent = new THREE.Object3D();
+    parent.rotation.y -= (10*Math.PI);
     scene.add(parent);
-    
 
     var progress = 0;
     for (var i = 0; i < planesArray.length; i++) {
         var pivot = new THREE.Object3D();
         pivot.rotation.y = progress * Math.PI / planesArray.length;
         parent.add(pivot);
-        planesArray[i].position.z = 400;
+        // planesArray[i].position.z = objectRadius;
         planesArray[i].rotation.y = -progress * Math.PI / planesArray.length;
         pivot.add(planesArray[i]);
         progress += 2;
@@ -47391,281 +47166,297 @@ function initCar(planesArray) {
 
 
     //set renderer
-    this.renderer = new THREE.WebGLRenderer({
+    renderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha: true
     });
     renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setClearColor( 0x000000, 0 ); // required
+    renderer.setClearColor( 0x000000, 0 ); 
     renderer.setSize(container.clientWidth, container.clientHeight);
-    // renderer.domElement.style.position = 'absolute'; // required
-    // renderer.domElement.style.top = 0;
-    // renderer.domElement.style.zIndex = "1"; // required
     renderer.gammaOutput = true;
     container.appendChild(renderer.domElement);
 
+
+    animateModels = new AnimateModels(rotationRate);
+
+    animateCarousel();
 }
 
-window.addEventListener('resize', onWindowResize, false);
-
-
-
-// adjusting to changes in the window
-function onWindowResize() {
-    camera.aspect = container.clientWidth / container.clientHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(container.clientWidth, container.clientHeight);
+function animateCarousel(){
+    requestAnimationFrame(animateCarousel);
+    animateModels.tick();
+    renderer.render(scene, camera);
 }
 
-// actually animating the scene including orbit changes
+function createImagePlanes(input){
+    var resultArray = [];
+    input.files.forEach(function (element, it) {
+        var textLoader = new THREE.TextureLoader();
 
-function animateCar() {
-    var rotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y / ((2*Math.PI)/imagesArray.length)));
-    // if ((rotationInRadiansPerUnit % imagesArray.length) == 0) {
-    //     working = 0;
-    // }
+        var printMaterial = new THREE.MeshLambertMaterial({
+            map: textLoader.load(element.pic)
+        });
 
-    // working++;
+        printMaterial.transparent = true;
 
-    // console.log(scene.children[1].rotation.y);
+        var printGeometry  = new THREE.PlaneBufferGeometry(radius, radius); 
 
-    // ugly ugly ugly inversion to allow for this to work backwards
-    var inversionArray = [0, 3, 2, 1];
+        // The shoe print to which the other objects will adhere
+        var print = new THREE.Mesh(printGeometry, printMaterial);
 
-    // var direction = 0;
-    // if (rotationInRadiansPerUnit <= 0) {
-    //     direction = -1;
-    // } else {
-    //     direction = 1;
-    // }
-    if (imagesArray) {
-        if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % imagesArray.length)].children[0]) {
-            if (imagesArray[(Math.abs(rotationInRadiansPerUnit) % imagesArray.length)].children[0].children[0].material) {
-                if (rotationInRadiansPerUnit < 0) {
-                    var negRotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y /    ((Math.PI * 2) / imagesArray.length)    ));
-                    imagesArray.forEach(function (element) {
-                        element.children[0].fade = false;
-                    });
-                    imagesArray[(Math.abs(negRotationInRadiansPerUnit) % imagesArray.length)].children[0].fade = true;
-                } else {
-                    var posRotationInRadiansPerUnit = Math.round((scene.children[1].rotation.y / ((Math.PI * 2) / imagesArray.length) ) + 0.50);
-                    imagesArray.forEach(function (element) {
-                        element.children[0].fade = false;
-                    });
-                    imagesArray[inversionArray[(Math.abs(posRotationInRadiansPerUnit) % imagesArray.length)]].children[0].fade = true;
+        // print.position.set(0.-3,0);
+        print.position.copy(initialRelativePosition);
+        print.animating = -1;
+        print.name = element.pic;
+
+        var svgLoader = new THREE.SVGLoader();
+        svgLoader.load( element.svg, function(paths) {
+            var group = new THREE.Group();
+            group.scale.multiplyScalar( 0.25 );
+            group.position.x = - 70;
+            group.position.y = 70;
+            group.scale.y *= -1;
+
+            for ( var i = 0; i < paths.length; i ++ ){
+                var path = paths[ i ];
+
+                var svgMaterial = new THREE.MeshBasicMaterial({
+                    color:  path.color,
+                    side: THREE.DoubleSide
+                });
+
+                var shapes = path.toShapes( true );
+                for ( var j = 0; j < shapes.length; j++ ){
+                    var shape = shapes[ j ];
+                    var svgGeometry = new THREE.ShapeBufferGeometry( shape );
+                    var svgMesh = new THREE.Mesh(svgGeometry, svgMaterial);
+                    // svgMesh.material.visible = false;
+
+                    group.add( svgMesh );
+
+                    // svgMesh.scale.multiplyScalar( 0.25 );
+                    // svgMesh.position.x = 120;
+                    // svgMesh.position.y = 0;
+                    // svgMesh.scale.y *= -1;
+                    // print.add(svgMesh);
+
                 }
             }
-        }
-        imagesArray.forEach(function (element, it){
-            if (element.children[0]){
-                // console.log(it+":"+element.children[0].fade);
 
-            }
-        })
-    }
+            svgLoader.load( element.shop, function ( paths ){
+                var wholeButton = new THREE.Group();
+                for ( var i = 0; i < paths.length; i++ ){
+                    var path = paths[ i ];
+
+                    var buttonMaterial = new THREE.MeshBasicMaterial({
+                        color: path.color,
+                        side: THREE.DoubleSide
+                    });
+
+                    var shapes = path.toShapes( true );
+
+                    for ( var j = 0; j < shapes.length; j++ ) {
+                        var shape = shapes[ j ];
+                        var buttonGeometry = new THREE.ShapeBufferGeometry( shape );
+
+                        var buttonMesh  = new THREE.Mesh( buttonGeometry, buttonMaterial);
 
 
+                        var scaleMesh = 0.2;
+                        // buttonMesh.scale.set(scaleMesh,scaleMesh,scaleMesh);
+                        // buttonMesh.position.x = 120;
+                        buttonMesh.position.y = 80;
+                        // buttonMesh.scale.y *= -1;
+                        // buttonMesh.material.visible = false;
+                        buttonMesh.button = true;
+                        buttonCasters.push(buttonMesh);
+                        group.add(buttonMesh);
+                        // group.visible = false;
+                        // group.position.x = -500;
+                    }
 
-
-
-    // fade();
-
-
-
-
-
-    // if (scene.children[1]){
-    // if (scene.children[1].children){
-    //     if (scene.children[1].children[0].children){
-    //         if (scene.children[1].children[0].children[0].children){
-    //             if (scene.children[1].children[0].children[0].children[0]){
-    //                 if (scene.children[1].children[0].children[0].children[0].children[0].material.opacity){
-    //                     console.log(scene.children[1].children[0].children[0].children[0].children[0].material.opacity);
-
-    //                 }
-
-    //             }
-
-    //         }
-
-    //     }
-    // }
-    // }
-    // console.log(scene.children[1].children[0].children[0].children[0].children[0].material.opacity);
-
-    requestAnimationFrame(animateCar);
-renderer.render(scene, camera);
-
-if (speed < 0.0001 || speed > 0.0001) {
-    speed = speed * 0.99;
+                }
+            });
+            group.position.x = 2100;
+            group.position.y = 20;
+            print.add(group);
+        });
+        resultArray.push(print);
+        planeCasters.push(print);
+    });
+    return resultArray;
 }
 
-if (!destination) {
+function AnimateModels(rate) {
+    var moveSpeed = 5;
+    var moveDistance = 500;
+    var AMRotationRate = rate;
+    var AMSubjectModel;
+    var AMIsRotating = true;
+    var targetRotationPosition = 0;
+    var targetRotationTotalDistance;
+    var bringToFrontWorking = false;
+    var ModelInitialPosition = new THREE.Vector3();
+    var choiceNotMade = true;
+    var AMAnimateSVG = false;
+    var AMOffSet = -0.05;
+    this.tick = function () {
+        if (AMIsRotating){
+            this.rotate(1);
+            this.extendZ();
+            if (AMSubjectModel){
+                this.hideSVG();
 
-    if (mouseOver) {
-        rotateParent(getRotationRate() / 2);
-        if (camera.position.z > zoomedCameraDistance) {
-            camera.position.z -= cameraZoomRate;
+            }
+        } else if(bringToFrontWorking) { 
+            this.bringToFront();
+        } else if (AMAnimateSVG){
+            this.showSVG();
         }
-    } else {
-        rotateParent(getRotationRate());
-        if (camera.position.z < cameraDistance) {
-            camera.position.z += cameraZoomRate;
-        }
-
     }
+    this.showSVG = function() {
+        if (AMSubjectModel.children[0].position.x > 150){
+            AMSubjectModel.children[0].position.x -= 70;
 
-} else {
-    if (destinationObject.object.parent.parent.rotation.y < 0) {
-        var delta = destinationObject.object.parent.parent.rotation.y % oneRotation;
-        var rotationToInitial = destinationObject.object.parent.parent.rotation.y -  delta;
+        }
+    }
+    this.hideSVG = function() {
+        if (AMSubjectModel.children[0].position.x < 500){
+            AMSubjectModel.children[0].position.x += 100;
+        } else if (AMSubjectModel.children[0].position.x < 2100){
+            AMSubjectModel.children[0].position.x = 2100;
+        }
+    }
+    this.bringToFront = function(){
+        if (AMSubjectModel){
+            // var currentParPos = AMSubjectModel.parent.parent.rotation.y + 0.05;
+            // var objPos = (currentParPos + AMSubjectModel.parent.rotation.y);
+            
+            if (Math.abs(targetRotationPosition-AMSubjectModel.parent.parent.rotation.y)>0.01){
+                if (targetRotationPosition>AMSubjectModel.parent.parent.rotation.y){
+                    this.extendZwithPercent(1-(targetRotationPosition-AMSubjectModel.parent.parent.rotation.y)/targetRotationTotalDistance);
+                    this.rotate(-4);
+                } else {
+                    this.extendZwithPercent(1-(targetRotationPosition-AMSubjectModel.parent.parent.rotation.y)/targetRotationTotalDistance);
+                    this.rotate(4);
+                }
+            }else {
 
-        var destinationPoint  =  rotationToInitial -  (destinationObject.object.parent.rotation.y*1.2);
-        mouseOver = true;
-        if (Math.abs(Math.abs(destinationObject.object.parent.parent.rotation.y) - Math.abs(destinationPoint)) < 0.01  ){
-            rotationRate = 0;
-            destinationObject.object.children[0].children.forEach(function (element, index){
-                setTimeout(function(){
-                    element.material.visible = true;
-                },
-                62.5 * index);
-                // setTimeout(function (){
-                //     element.material.visible = true;
-                // },1000);
-                // element.material.visible = true;
-            })
-        } else {
-            if (Math.abs(destinationObject.object.parent.parent.rotation.y) > Math.abs(destinationPoint)){
-                rotationRate = 0.02;
+                bringToFrontWorking = false;
+                AMSubjectModel.children[0].position.x = 300;
+                AMAnimateSVG = true;
+            }
+        }
+    }
+    this.extendZ = function(){
+
+        scene.children[1].children.forEach(function(element) {
+            if (element.children[0].animating == 1 & element.children[0].position.z < presentationPosition.z){
+                element.children[0].position.z +=2;
+            } else if (element.children[0].animating == -1 & element.children[0].position.z > initialRelativePosition.z) {
+                element.children[0].position.z -= 2;
+            }
+
+
+            if (element.children[0].animating == 1 & element.children[0].position.y < presentationPosition.y){
+                element.children[0].position.y +=0.35;
+            } else if (element.children[0].animating == -1 & element.children[0].position.y > initialRelativePosition.y){
+                element.children[0].position.y -=0.35;
+            }
+        });
+    }
+    this.extendZwithPercent = function(percent){
+        scene.children[1].children.forEach(function(element) {
+            if (element.children[0].animating == 1 & element.children[0].position.z < presentationPosition.z){
+                element.children[0].position.z = ((presentationPosition.z - ModelInitialPosition.z) * (percent)) + ModelInitialPosition.z ;
+                element.children[0].position.y = ((presentationPosition.y - ModelInitialPosition.y) * (percent)) + ModelInitialPosition.y ;
+            } else if (element.children[0].animating == -1 & element.children[0].position.z > initialRelativePosition.z) {
+                element.children[0].position.z -= 2;
+            }
+
+
+            if (element.children[0].animating == -1 & element.children[0].position.y > initialRelativePosition.y){
+                element.children[0].position.y -=0.35;
+            }
+        });
+    }
+    this.rotate = function(speed){
+        scene.children[1].rotation.y += AMRotationRate * speed;
+
+        scene.children[1].children.forEach(function(element) {
+
+            element.children[0].rotation.y += -AMRotationRate * speed;
+        });
+    }
+    this.designateObject = function (object) {
+        if (choiceNotMade){
+            AMSubjectModel = object;
+            var relativeRotation = (AMSubjectModel.parent.parent.rotation.y + AMSubjectModel.parent.rotation.y)%(2*Math.PI);
+            if (  Math.abs(relativeRotation)      > Math.PI){
+                targetRotationPosition = AMSubjectModel.parent.parent.rotation.y +AMOffSet  - (Math.PI-(Math.abs(relativeRotation)-Math.PI));
+                targetRotationTotalDistance = targetRotationPosition - AMSubjectModel.parent.parent.rotation.y;
             } else {
-                rotationRate = -0.02;
+                targetRotationPosition = AMSubjectModel.parent.parent.rotation.y + AMOffSet +Math.abs(relativeRotation);
+                targetRotationTotalDistance = targetRotationPosition - AMSubjectModel.parent.parent.rotation.y;
             }
+            ModelInitialPosition.copy(object.position);
+
+            planeCasters.forEach(function(element) {
+                if (object.name == element.name){
+                    element.animating = 1;
+                }
+            });
+            AMIsRotating = false;
+            bringToFrontWorking = true;
+            choiceNotMade = false;
         }
     }
-    rotateParent(getRotationRate());
-
-
+    this.deselectObject = function(object) {
+        planeCasters.forEach(function(element){
+            element.animating = -1;
+        });
+        AMIsRotating = true;
+        choiceNotMade = true;
+    }
 }
 
-}
-function bringObjectToFront(object){
 
-    destination = true;
-    destinationObject = object;
+// Mouse functions 
 
-}
-
-// function to register mouse location on click
-function onMouseDown(event) {mouseDown = true;
-    averageX = [0, 0];
-    averageY = [0, 0];
-
-    event.preventDefault();
-
+function onMouseDown(event){
+    var mouse = new THREE.Vector2();
     // update the picking ray with the camera and mouse position
     mouse.x = ( event.offsetX / container.clientWidth ) * 2 - 1;
     mouse.y = - ( event.offsetY / container.clientHeight ) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
 
-    // calculate objects intersecting the picking ray
-    var intersects = raycaster.intersectObjects(casterObjects);
-    if (intersects.length > 0) {
-        console.log(intersects);
-        inter = intersects[0];
-        bringObjectToFront(inter);
-    } else {
-        rotationRate = -0.05;
+    mouseDown = true;
+    raycaster.setFromCamera(mouse, camera);
+    var intersects = raycaster.intersectObjects(planeCasters);
+    if (intersects.length > 0){
+        // console.log(intersects[0].object);
+        animateModels.designateObject(intersects[0].object);
     }
-    var otherIntersects = raycaster.intersectObjects(casterObjects2);
-    if (otherIntersects.length >0){
-        destination = false;
-        rotationRate = -0.005;
-        // console.log(Object.keys( destinationObject.object.children[0].children));
-        // for (var i = 0; i < destinationObject.object.children[0].children.length; i++){
-        //     console.log(destinationObject.object.children[0].children[i]);
-        //     // destinationObject.object.children[0].children[i].material.visible = false;
-        // }
-        destinationObject.object.children[0].children.forEach(function (element){
-            element.material.visible = false;
-            console.log(element);
-        })
-        
+    var intersectsButtons = raycaster.intersectObjects(buttonCasters);
+    if (intersectsButtons.length > 0){
+        // console.log(intersectsButtons);
+        animateModels.deselectObject(intersectsButtons[0].object);
     }
 }
-
-function onMouseUp(event) {
+function onMouseUp(){
     mouseDown = false;
 }
+function onMouseMove(){
 
-function onMouseMove(event) {
-    if (mouseDown & inContainer(event)) {
-        if (timeStamp === null) {
-            timeStamp = Date.now();
-            prevMouseX = event.clientX;
-            prevMouseY = event.clientY;
-            return;
-        }
-
-        var now = Date.now();
-        var deltaT = now - timeStamp;
-        var deltaX = event.clientX - prevMouseX;
-        var speedX = Math.round(deltaX / deltaT * 100);
-
-        averageX[0] += speedX;
-        averageX[1]++;
-        timeStamp = now;
-        prevMouseX = event.clientX;
-        prevMouseY = event.clientY;
-        speed = ((averageX[0] / averageX[1]) / 1000) * 0.1;
-
-        if ((speed * rotationRate) < 0) {
-            rotationRate = rotationRate * -1;
-        }
-
-    }
 }
-
-function rotateParent(rotationAmount) {
-    parent.rotation.y += rotationAmount;
-    for (var i = 0; i < parent.children.length; i++) {
-        parent.children[i].children[0].rotation.y += -rotationAmount;
-    }
+function onMouseOver(){
+    mouseOver = true;
 }
-
-function toRadians(angle) {
-    return angle * (Math.PI / 180);
-}
-
-function onMouseOver(event) {
-
-    if (inContainer(event)) {
-        mouseOver = true;
-    } else {
-        mouseOver = false;
-    }
-}
-
-function inContainer(event) {
-    if (event.clientX > container.offsetLeft & event.clientX < container.offsetLeft + container.clientWidth) {
-        if (event.clientY > container.offsetTop & event.clientY < container.offsetTop + container.clientHeight) {
-            return true;
-        }
-    }
-    return false;
-}
-
-function onMouseOff(event) {
+function onMouseOff(){
     mouseOver = false;
 }
-
-
-function getRotationRate() {
-    if (mouseDown) {
-        return 0;
-    } else {
-        if ((speed * rotationRate) < 0) {
-            return -rotationRate + speed;
-        }
-        return rotationRate + speed;
-    }
+function onWindowResize(){
+    camera.aspect = container.clientWidth / container.clientHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(container.clientWidth, container.clientHeight)
 }
+
