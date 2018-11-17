@@ -6,6 +6,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
     <style>
+        body {
+            background-color: blue;
+        }
         #carousel {
             width: 100vw;
             height: 50vw;
@@ -33,6 +36,31 @@
             background-color: #555;
             opacity: 0.7;
         }
+        #test {
+            background-color: #F00;
+        }
+        .panel {
+            font-family: myfont;
+            font-size: 4em;
+            padding: 15px;
+            color: white;
+            padding: 0px;
+
+        }
+
+        .panelOut p {
+            width: 550px;
+            font-family: myfont;
+            font-size: 2em;
+            margin-top: 0px;
+        }
+        @font-face {
+            font-family: 'myfont';
+            src: url('fonts/SharpGroteskSmBoldItalic15.ttf');
+        } 
+        #test{
+            font-family: myfont;
+        }
     </style>
 
 </head>
@@ -41,7 +69,7 @@
     <div id="carousel">
 
     </div>
-    <div>Test if replacing correctly</div>
+    <div id="test">TEST IF PLACING CORRECTLY</div>
 
     <script src="js/three.js"></script>
     <script src="js/MTLLoader.js"></script>
@@ -51,7 +79,7 @@
     <script src="js/TTFLoader.js"></script>
     <script src="js/CSS3DRenderer.js"></script>
     <script src="js/Projector.js"></script>
-    <script src="js/Init2.js"></script>
+    <script src="js/Init3.js"></script>
 
 
 
